@@ -154,7 +154,7 @@ export class HomeComponent implements OnInit {
               })
             })
             this.clearTimer();
-          }, 5000);
+          }, 60000);
 
         }
       } else { // if the right position is greate than wrong position this code will execute
