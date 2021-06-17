@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import * as p5 from 'p5';
 import * as ml5 from 'ml5';
+import { ipcRenderer } from 'electron';
+
 
 @Component({
   selector: 'app-home',
@@ -12,6 +14,8 @@ export class HomeComponent implements OnInit {
   private p5;
   constructor(private router: Router) { }
   ngOnInit(): void {
+    // console.log(process.env.USERPROFILE);
+    // console.log(process.env.INIT_CWD);
     this.createCanvas();
   }
 
@@ -68,7 +72,6 @@ export class HomeComponent implements OnInit {
       };
       this.brain.load(modelInfo, this.brainLoaded.bind(this));
     };
-
     p.draw = this.draw.bind(this);
   }
 
@@ -97,6 +100,10 @@ export class HomeComponent implements OnInit {
   // This function is set the postures result into the postures varaible and then call the predictPostion function
   gotResult(error: any, results: any) {
     this.postures = results;
+    ipcRenderer.on('asynchronous-reply', (event, arg) => {
+      console.log(arg) // prints "pong"
+    })
+    ipcRenderer.send('asynchronous-message', 'ping')
     this.predictPosition();
   }
 
@@ -131,6 +138,7 @@ export class HomeComponent implements OnInit {
     let bar2: HTMLElement = document.querySelector("#bar2");
     let container: HTMLElement = document.querySelector(".container");
     let loader: HTMLElement = document.querySelector(".loader");
+    
 
     this.p5.pop();
 
@@ -145,23 +153,23 @@ export class HomeComponent implements OnInit {
         }
 
       });
-      if (this.rightPostureValue < this.wrongPostureValue) { // If the wrong posture is greater than right posture about 1 minute it will show the notification to correct your position
-        if (!this.timer) { // If the timer is empty this code will execute
-          this.timer = setTimeout(() => { // This setTimeOut is execute after 1 minute again and again when the user not correct his positon in 1 minute
-            Notification.requestPermission().then(function (result) {
-              const myNotification = new Notification('Warning', {
-                body: "You've been sitting with a wrong posture for about a minute now!"
-              })
-            })
-            this.clearTimer();
-          }, 60000);
+      // if (this.rightPostureValue < this.wrongPostureValue) { // If the wrong posture is greater than right posture about 1 minute it will show the notification to correct your position
+      //   if (!this.timer) { // If the timer is empty this code will execute
+      //     this.timer = setTimeout(() => { // This setTimeOut is execute after 1 minute again and again when the user not correct his positon in 1 minute
+      //       Notification.requestPermission().then(function (result) {
+      //         const myNotification = new Notification('Warning', {
+      //           body: "You've been sitting with a wrong posture for about a minute now!"
+      //         })
+      //       })
+      //       this.clearTimer();
+      //     }, 60000);
 
-        }
-      } else { // if the right position is greate than wrong position this code will execute
-        if (this.timer) { // if setTimeOut already set into timer this code will excute and call the clearTimer function
-          this.clearTimer();
-        }
-      }
+      //   }
+      // } else { // if the right position is greate than wrong position this code will execute
+      //   if (this.timer) { // if setTimeOut already set into timer this code will excute and call the clearTimer function
+      //     this.clearTimer();
+      //   }
+      // }
       this.rightPostureValue = Math.floor(this.rightPosture);
       this.wrongPostureValue = Math.floor(this.wrongPosture);
       bar1.innerText = this.rightPostureValue + "%";

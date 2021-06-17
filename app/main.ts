@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 
@@ -79,6 +79,11 @@ try {
       createWindow();
     }
   });
+
+  ipcMain.on( 'copy:json:file', (event, arg) => {
+    console.log('copying files');
+    event.reply('asynchronous-reply', 'pong')
+} );
 
 } catch (e) {
   // Catch Error
