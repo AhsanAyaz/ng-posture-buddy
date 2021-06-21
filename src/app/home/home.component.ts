@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import * as p5 from 'p5';
-import * as ml5 from 'ml5';
+import * as p5 from "p5";
+import * as ml5 from "ml5";
 // const electron = window.require("electron");
 // const { ipcRenderer } = electron;
 @Component({
@@ -11,7 +11,7 @@ import * as ml5 from 'ml5';
 })
 export class HomeComponent implements OnInit {
   private p5;
-  constructor(private router: Router) { }
+  constructor(private router: Router) {}
   ngOnInit(): void {
     // ipcRenderer.off;
     // ipcRenderer.once("asynchronous-reply", this.onReply.bind(this));
@@ -33,7 +33,7 @@ export class HomeComponent implements OnInit {
   delay(time: number) {
     return new Promise((resolve, reject) => {
       if (isNaN(time)) {
-        reject(new Error('delay requires a valid number.'));
+        reject(new Error("delay requires a valid number."));
       } else {
         setTimeout(resolve, time);
       }
@@ -51,28 +51,29 @@ export class HomeComponent implements OnInit {
 
   // This is a main function which create canvas for webcam and it also use the ml5 functions
   setup(p: any) {
-
     p.setup = () => {
       let canvasCreate = p.createCanvas(300, 300);
-      document.getElementById("webcam-container").appendChild(canvasCreate.canvas);
+      document
+        .getElementById("webcam-container")
+        .appendChild(canvasCreate.canvas);
       this.video = p.createCapture(p.VIDEO);
       this.video.size(300, 300);
       this.video.remove();
       this.poseNet = ml5.poseNet(this.video, this.modelLoaded.bind(this));
-      this.poseNet.on('pose', this.gotPoses.bind(this));
+      this.poseNet.on("pose", this.gotPoses.bind(this));
 
       const options = {
         inputs: 34,
         outputs: 2,
-        task: 'classification',
-        debug: true
+        task: "classification",
+        debug: true,
       };
       this.brain = ml5.neuralNetwork(options);
 
       const modelInfo = {
-        model: 'assets/model/model.json',
-        metadata: 'assets/model/model_meta.json',
-        weights: 'assets/model/model.weights.bin',
+        model: "assets/model/model.json",
+        metadata: "assets/model/model_meta.json",
+        weights: "assets/model/model.weights.bin",
       };
       this.brain.load(modelInfo, this.brainLoaded.bind(this));
     };
@@ -82,13 +83,14 @@ export class HomeComponent implements OnInit {
 
   // This function is called after brain loaded the models files and then it call the predictPosition function
   brainLoaded() {
-    console.log('pose predicting ready!');
+    console.log("pose predicting ready!");
     this.predictPosition();
   }
 
   // This function is created to push the x,y cordinates of body parts into new inputs array and send it into the brain classify function
   predictPosition() {
-    if (this.pose) { // if the pose varaible is not empty this code will execute
+    if (this.pose) {
+      // if the pose varaible is not empty this code will execute
       const inputs = [];
       for (let i = 0; i < this.pose.keypoints.length; i++) {
         const x = this.pose.keypoints[i].position.x;
@@ -97,8 +99,11 @@ export class HomeComponent implements OnInit {
         inputs.push(y);
       }
       this.brain.classify(inputs, this.gotResult.bind(this));
-    } else { // if the pose varaible is empty this code will execute and set the timeout of 100 miliseconds and call this function again 
-      setTimeout(() => { this.predictPosition() }, 100);
+    } else {
+      // if the pose varaible is empty this code will execute and set the timeout of 100 miliseconds and call this function again
+      setTimeout(() => {
+        this.predictPosition();
+      }, 100);
     }
   }
 
@@ -117,7 +122,7 @@ export class HomeComponent implements OnInit {
 
   // This function is called when webcam is show on page
   modelLoaded() {
-    console.log('poseNet ready');
+    console.log("poseNet ready");
   }
 
   // This function is created to clear the notification setTimeOut interval timer
@@ -130,8 +135,8 @@ export class HomeComponent implements OnInit {
   draw() {
     this.p5.push();
     this.p5.translate(this.video.width, 0);
-    this.p5.scale(-1, 1); +
-    this.p5.image(this.video, 0, 0, this.video.width, this.video.height);
+    this.p5.scale(-1, 1);
+    +this.p5.image(this.video, 0, 0, this.video.width, this.video.height);
 
     let label1: HTMLElement = document.querySelector("#label1");
     let label2: HTMLElement = document.querySelector("#label2");
@@ -142,17 +147,24 @@ export class HomeComponent implements OnInit {
 
     this.p5.pop();
 
-    if (this.postures) { // if postures are not empty then it will execute and looping the postures varaible
-      this.postures.map((data: { label: string; confidence: { toFixed: (arg0: number) => number; }; }) => {
-        if (data.label === 'right position') { // if data.label value is equal to right-position it will set the right position fields
-          this.rightPosture = data.confidence.toFixed(2) * 100;
-          label1.innerText = data.label + ": ";
-        } else { // if data.label value is equal to wrong-position it will set the wrong position fields
-          this.wrongPosture = data.confidence.toFixed(2) * 100;
-          label2.innerText = data.label + ": ";
+    if (this.postures) {
+      // if postures are not empty then it will execute and looping the postures varaible
+      this.postures.map(
+        (data: {
+          label: string;
+          confidence: { toFixed: (arg0: number) => number };
+        }) => {
+          if (data.label === "right position") {
+            // if data.label value is equal to right-position it will set the right position fields
+            this.rightPosture = data.confidence.toFixed(2) * 100;
+            label1.innerText = data.label + ": ";
+          } else {
+            // if data.label value is equal to wrong-position it will set the wrong position fields
+            this.wrongPosture = data.confidence.toFixed(2) * 100;
+            label2.innerText = data.label + ": ";
+          }
         }
-
-      });
+      );
       // if (this.rightPostureValue < this.wrongPostureValue) { // If the wrong posture is greater than right posture about 1 minute it will show the notification to correct your position
       //   if (!this.timer) { // If the timer is empty this code will execute
       //     this.timer = setTimeout(() => { // This setTimeOut is execute after 1 minute again and again when the user not correct his positon in 1 minute

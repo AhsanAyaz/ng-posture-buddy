@@ -1,19 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import * as p5 from 'p5';
-import * as ml5 from 'ml5';
+import { Component, OnInit } from "@angular/core";
+import * as p5 from "p5";
+import { poseNet, neuralNetwork } from "ml5";
+import { Router } from "@angular/router";
 const electron = window.require("electron");
-const { ipcRenderer } = electron
+const { ipcRenderer } = electron;
 
 @Component({
-  selector: 'app-collecting',
-  templateUrl: './collecting.component.html',
-  styleUrls: ['./collecting.component.scss']
+  selector: "app-collecting",
+  templateUrl: "./collecting.component.html",
+  styleUrls: ["./collecting.component.scss"],
 })
 export class CollectingComponent implements OnInit {
   private p5;
-  constructor() { }
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
+    const isTrainingDone = window.localStorage.getItem(
+      "ng-posture-budy-training-done"
+    );
+    if (isTrainingDone) {
+      this.router.navigate(["home"]);
+      return;
+    }
     this.createCanvas();
   }
 
@@ -25,17 +33,17 @@ export class CollectingComponent implements OnInit {
   brain: any;
 
   position: any;
-  state = 'waiting';
+  state = "waiting";
   postureLabel: any;
   recording = false;
   startRecording: any;
   stopRecording: any;
-  mode = 'collecting';
+  mode = "collecting";
 
   delay(time) {
     return new Promise((resolve, reject) => {
       if (isNaN(time)) {
-        reject(new Error('delay requires a valid number.'));
+        reject(new Error("delay requires a valid number."));
       } else {
         setTimeout(resolve, time);
       }
@@ -47,38 +55,40 @@ export class CollectingComponent implements OnInit {
     this.p5 = new p5(this.setup.bind(this));
   }
 
-
   // this function for collect conrdinates and also set posture values
   start() {
-    this.startRecording.classList.add('disable');
+    this.startRecording.classList.add("disable");
     this.startRecording.disabled = true;
-    this.stopRecording.classList.remove('disable');
+    this.stopRecording.classList.remove("disable");
     this.stopRecording.disabled = false;
-    let selectTag: HTMLElement = document.querySelector('#postures');
-    this.position = selectTag['value'];
-    this.state = 'collecting';
-    console.log('collecting');
+    let selectTag: HTMLElement = document.querySelector("#postures");
+    this.position = selectTag["value"];
+    this.state = "collecting";
+    console.log("collecting");
   }
 
   // this function is for stop collecting conrdinates
   stop() {
-    this.stopRecording.classList.add('disable');
+    this.stopRecording.classList.add("disable");
     this.stopRecording.disabled = true;
-    this.startRecording.classList.remove('disable');
+    this.startRecording.classList.remove("disable");
     this.startRecording.disabled = false;
-    this.state = 'waiting';
-    console.log('not collecting');
+    this.state = "waiting";
+    console.log("not collecting");
   }
 
   // this function is for save the postures into json file
 
   saveData() {
-    this.brain.saveData('postures');
-    setTimeout(() => {
-      ipcRenderer.off;
-      ipcRenderer.on("json-file-move-reply", this.afterJsonFileMove.bind(this));
-      ipcRenderer.send("json-file-move-message", "ping");
-    }, 10000);
+    this.trainModel();
+    // this.brain.saveData("postures");
+    // const output = {
+    //   data: this.brain.neuralNetworkData.data.raw,
+    // };
+    // setTimeout(() => {
+    //   ipcRenderer.on("json-file-move-reply", this.afterJsonFileMove.bind(this));
+    //   ipcRenderer.send("json-file-move-message", output);
+    // }, 0);
   }
 
   afterJsonFileMove(event?, arg?) {
@@ -88,71 +98,74 @@ export class CollectingComponent implements OnInit {
 
   // this function is for export the model files which is created by json file
   exportData() {
-    this.brain.loadData('assets/postures.json');
+    this.brain.loadData("assets/postures.json");
     this.trainModel();
   }
 
   // this function is for priview the results
   preview() {
-    this.mode = 'preview';
+    this.mode = "preview";
     this.setup.bind(this);
-    let buttonsSection: HTMLElement = document.querySelector('.container');
-    buttonsSection[0].style.display = 'none';
+    let buttonsSection: HTMLElement = document.querySelector(".container");
+    buttonsSection[0].style.display = "none";
   }
 
   setup(p: any) {
     p.setup = () => {
-      this.startRecording = document.getElementById('start');
-      this.stopRecording = document.getElementById('stop');
-
+      this.startRecording = document.getElementById("start");
+      this.stopRecording = document.getElementById("stop");
 
       p.createCanvas(300, 300);
 
       this.video = p.createCapture(p.VIDEO);
       this.video.remove();
       this.video.size(300, 300);
-      this.poseNet = ml5.poseNet(this.video, this.modelLoaded.bind(this));
-      this.poseNet.on('pose', this.gotPoses.bind(this));
+      this.poseNet = poseNet(this.video, this.modelLoaded.bind(this));
+      this.poseNet.on("pose", this.gotPoses.bind(this));
 
       let options = {
         inputs: 34,
         outputs: 2,
-        task: 'classification',
-        debug: true
+        task: "classification",
+        debug: true,
       };
-      this.brain = ml5.neuralNetwork(options);
+      this.brain = neuralNetwork(options);
 
-      if (this.mode === 'preview') {
+      if (this.mode === "preview") {
         const modelInfo = {
-          model: 'model/model.json',
-          metadata: 'model/model_meta.json',
-          weights: 'model/model.weights.bin',
+          model: "model/model.json",
+          metadata: "model/model_meta.json",
+          weights: "model/model.weights.bin",
         };
         this.brain.load(modelInfo, this.brainLoaded.bind(this));
       }
       p.draw = this.draw.bind(this);
-    }
-
+    };
   }
 
   trainModel() {
     this.brain.normalizeData();
     let options = {
-      epochs: 50
+      epochs: 50,
     };
     this.brain.train(options, this.finishedTraining.bind(this));
   }
 
   brainLoaded() {
-    console.log('pose predicting ready!');
+    console.log("pose predicting ready!");
     this.predictPosition();
   }
 
   finishedTraining() {
-    this.brain.save();
-      ipcRenderer.off;
-      ipcRenderer.once("model-files-move-reply", this.afterModelsFileMove.bind(this));
-      ipcRenderer.send("model-files-move-message", "ping");
+    this.brain.save(() => {
+      console.log("files saved now");
+    });
+    // ipcRenderer.once(
+    //   "model-files-move-reply",
+    //   this.afterModelsFileMove.bind(this)
+    // );
+    // ipcRenderer.send("model-files-move-message", "ping");
+    // window.localStorage.setItem("ng-posture-budy-training-done", "true");
     // predictPosition();
   }
 
@@ -185,7 +198,7 @@ export class CollectingComponent implements OnInit {
     if (poses.length > 0) {
       this.pose = poses[0].pose;
       this.skeleton = poses[0].skeleton;
-      if (this.state == 'collecting') {
+      if (this.state == "collecting") {
         let inputs = [];
         for (let i = 0; i < this.pose.keypoints.length; i++) {
           let x = this.pose.keypoints[i].position.x;
@@ -200,9 +213,8 @@ export class CollectingComponent implements OnInit {
   }
 
   modelLoaded() {
-    console.log('poseNet ready');
+    console.log("poseNet ready");
   }
-
 
   draw() {
     this.p5.push();
@@ -230,14 +242,13 @@ export class CollectingComponent implements OnInit {
     this.p5.pop();
 
     if (this.postureLabel) {
-      const postureName: HTMLElement = document.querySelector('.posture-name');
+      const postureName: HTMLElement = document.querySelector(".posture-name");
       if (this.postureLabel === "right position") {
         postureName.style.color = "#5cb85c";
       } else {
-        postureName.style.color = '#d9534f';
+        postureName.style.color = "#d9534f";
       }
       postureName.innerHTML = this.postureLabel;
     }
   }
 }
-
