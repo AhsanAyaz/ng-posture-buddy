@@ -1,7 +1,24 @@
-<div class="container">
-  <h1 class="title">
-    {{ 'PAGES.HOME.TITLE' | translate }}
-  </h1>
-
-  <a routerLink="/detail">{{ 'PAGES.HOME.GO_TO_DETAIL' | translate }}</a>
+<div class="container animate-bottom">
+  <div class="heading">
+    <h1>Posture Buddy</h1>
+  </div>
+  <div id="webcam-container"></div>
+  <div class="labels">
+    <h2 class="posture-heading">Postures</h2>
+    <div id="label-container">
+      <div class="progress">
+        <label for="name" id="label1"></label>
+        <div class="progress-bar">
+          <div class="bar" id="bar1"></div>
+        </div>
+      </div>
+      <div class="progress">
+        <label for="name" id="label2"></label>
+        <div class="progress-bar">
+          <div class="bar" id="bar2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+<div class="loader"></div>

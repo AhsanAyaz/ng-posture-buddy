@@ -1,11 +1,14 @@
 import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
+import * as fs from "fs-extra";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
 
 let win: BrowserWindow = null;
+const userDirectory =  process.env.USERPROFILE + '/Downloads';
+const appDirectory =  process.env.INIT_CWD;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === "--serve");
 
@@ -79,10 +82,26 @@ try {
     }
   });
 
-  ipcMain.on("asynchronous-message", (event, arg) => {
-    console.log("copying files");
-    event.reply("asynchronous-reply", "pong");
+  ipcMain.on("json-file-move-message", (event, arg) => {
+    fs.move(userDirectory + '/postures.json', appDirectory + '/src/assets/postures.json', { overwrite: true }).then(function () {
+      event.reply("json-file-move-reply", "json move successfully");
+  }).catch(function (err) { return console.error(err); });
   });
+ 
+  ipcMain.on("model-files-move-message", (event, arg) => {
+    fs.move(userDirectory + '/model.json', appDirectory + '/src/assets/model/model.json')
+    .then(() => {
+      return fs.move(userDirectory + '/model.weight.bin', appDirectory + '/src/assets/model/model.weight.bin')
+    })
+    .then(() => {
+      return fs.move(userDirectory + '/model_meta.json', appDirectory + '/src/assets/model/model_meta.json')
+    })
+    .then(() => {
+      event.reply("model-files-move-reply", "modal files move successfully");
+    })
+    .catch(err => console.error(err))
+  });
+
 } catch (e) {
   // Catch Error
   // throw e;
