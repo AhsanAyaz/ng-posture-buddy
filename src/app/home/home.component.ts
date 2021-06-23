@@ -44,12 +44,12 @@ export class HomeComponent implements OnInit {
   // This is a main function which create canvas for webcam and it also use the ml5 functions
   setup(p: any) {
     p.setup = () => {
-      let canvasCreate = p.createCanvas(300, 300);
+      let canvasCreate = p.createCanvas(500, 300);
       document
         .getElementById("webcam-container")
         .appendChild(canvasCreate.canvas);
       this.video = p.createCapture(p.VIDEO);
-      this.video.size(300, 300);
+      this.video.size(500, 300);
       this.video.remove();
       this.poseNet = ml5.poseNet(this.video, this.modelLoaded.bind(this));
       this.poseNet.on("pose", this.gotPoses.bind(this));

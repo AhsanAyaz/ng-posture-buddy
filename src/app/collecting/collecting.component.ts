@@ -73,13 +73,13 @@ export class CollectingComponent implements OnInit {
       this.startRecording = document.getElementById("start");
       this.stopRecording = document.getElementById("stop");
 
-      const canvasCreate = p.createCanvas(300, 300);
+      const canvasCreate = p.createCanvas(500, 300);
       document
         .getElementById("webcam-container")
         .appendChild(canvasCreate.canvas);
       this.video = p.createCapture(p.VIDEO);
       this.video.remove();
-      this.video.size(300, 300);
+      this.video.size(500, 300);
       this.poseNet = poseNet(this.video, this.modelLoaded.bind(this));
       this.poseNet.on("pose", this.gotPoses.bind(this));
 
