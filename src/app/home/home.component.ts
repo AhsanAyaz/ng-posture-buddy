@@ -1,9 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
 import * as p5 from "p5";
 import * as ml5 from "ml5";
-// const electron = window.require("electron");
-// const { ipcRenderer } = electron;
+
 @Component({
   selector: "app-home",
   templateUrl: "./home.component.html",
@@ -11,11 +9,8 @@ import * as ml5 from "ml5";
 })
 export class HomeComponent implements OnInit {
   private p5;
-  constructor(private router: Router) {}
+  constructor() {}
   ngOnInit(): void {
-    // ipcRenderer.off;
-    // ipcRenderer.once("asynchronous-reply", this.onReply.bind(this));
-    // ipcRenderer.send("asynchronous-message", "ping");
     this.createCanvas();
   }
 
@@ -29,6 +24,7 @@ export class HomeComponent implements OnInit {
   wrongPostureValue: any;
   postures: any;
   timer = null;
+  userDirectory = process.env.USERPROFILE + "/Downloads/ng-posture-buddy/model";
 
   delay(time: number) {
     return new Promise((resolve, reject) => {
@@ -43,10 +39,6 @@ export class HomeComponent implements OnInit {
   // This function is called from inIt() and this function calls the main setup() function
   private createCanvas() {
     this.p5 = new p5(this.setup.bind(this));
-  }
-
-  onReply(event, arg) {
-    console.log(arg); // prints "pong"
   }
 
   // This is a main function which create canvas for webcam and it also use the ml5 functions
@@ -69,13 +61,10 @@ export class HomeComponent implements OnInit {
         debug: true,
       };
       this.brain = ml5.neuralNetwork(options);
-
-      const modelInfo = {
-        model: "assets/model/model.json",
-        metadata: "assets/model/model_meta.json",
-        weights: "assets/model/model.weights.bin",
-      };
-      this.brain.load(modelInfo, this.brainLoaded.bind(this));
+      this.brain.load(
+        this.userDirectory + "/model.json",
+        this.brainLoaded.bind(this)
+      );
     };
 
     p.draw = this.draw.bind(this);
@@ -143,7 +132,7 @@ export class HomeComponent implements OnInit {
     let bar1: HTMLElement = document.querySelector("#bar1");
     let bar2: HTMLElement = document.querySelector("#bar2");
     let container: HTMLElement = document.querySelector(".container");
-    let loader: HTMLElement = document.querySelector(".loader");
+    let loader: HTMLElement = document.querySelector("app-loader");
 
     this.p5.pop();
 
@@ -165,23 +154,6 @@ export class HomeComponent implements OnInit {
           }
         }
       );
-      // if (this.rightPostureValue < this.wrongPostureValue) { // If the wrong posture is greater than right posture about 1 minute it will show the notification to correct your position
-      //   if (!this.timer) { // If the timer is empty this code will execute
-      //     this.timer = setTimeout(() => { // This setTimeOut is execute after 1 minute again and again when the user not correct his positon in 1 minute
-      //       Notification.requestPermission().then(function (result) {
-      //         const myNotification = new Notification('Warning', {
-      //           body: "You've been sitting with a wrong posture for about a minute now!"
-      //         })
-      //       })
-      //       this.clearTimer();
-      //     }, 60000);
-
-      //   }
-      // } else { // if the right position is greate than wrong position this code will execute
-      //   if (this.timer) { // if setTimeOut already set into timer this code will excute and call the clearTimer function
-      //     this.clearTimer();
-      //   }
-      // }
       this.rightPostureValue = Math.floor(this.rightPosture);
       this.wrongPostureValue = Math.floor(this.wrongPosture);
       bar1.innerText = this.rightPostureValue + "%";

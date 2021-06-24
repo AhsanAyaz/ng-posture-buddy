@@ -7,8 +7,8 @@ import * as fs from "fs-extra";
 require("@electron/remote/main").initialize();
 
 let win: BrowserWindow = null;
-const userDirectory = process.env.USERPROFILE + "/Downloads";
-const appDirectory = process.env.INIT_CWD;
+const userDirectory =
+  process.env.USERPROFILE + "/Downloads/ng-posture-buddy/model";
 const args = process.argv.slice(1),
   serve = args.some((val) => val === "--serve");
 
@@ -23,6 +23,7 @@ function createWindow(): BrowserWindow {
     width: size.width,
     height: size.height,
     webPreferences: {
+      webSecurity: false,
       nodeIntegration: true,
       allowRunningInsecureContent: serve ? true : false,
       contextIsolation: false, // false if you want to run 2e2 test with Spectron
@@ -63,7 +64,14 @@ try {
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
-  app.on("ready", () => setTimeout(createWindow, 400));
+  app.on("ready", () => {
+    setTimeout(createWindow, 400);
+    if (!fs.existsSync(userDirectory)) {
+      fs.mkdirSync(userDirectory, {
+        recursive: true,
+      });
+    }
+  });
 
   // Quit when all windows are closed.
   app.on("window-all-closed", () => {
@@ -82,41 +90,20 @@ try {
     }
   });
 
-  ipcMain.on("json-file-move-message", (event, arg) => {
-    console.log(arg);
-    const jsonFileData = arg;
+  ipcMain.on("check-files-are-created", (event, arg) => {
     try {
-      fs.writeJsonSync(
-        appDirectory + "/src/assets/postures.json",
-        jsonFileData
-      );
-      event.reply("json-file-move-reply", "json move successfully");
+      setInterval(() => {
+        if (
+          fs.existsSync(userDirectory + "/model.json") &&
+          fs.existsSync(userDirectory + "/model.weights.bin") &&
+          fs.existsSync(userDirectory + "/model_meta.json")
+        ) {
+          event.reply("file-created", "json move successfully");
+        }
+      }, 2000);
     } catch (err) {
       console.log(err);
     }
-  });
-
-  ipcMain.on("model-files-move-message", (event, arg) => {
-    fs.move(
-      userDirectory + "/model.json",
-      appDirectory + "/src/assets/model/model.json"
-    )
-      .then(() => {
-        return fs.move(
-          userDirectory + "/model.weight.bin",
-          appDirectory + "/src/assets/model/model.weight.bin"
-        );
-      })
-      .then(() => {
-        return fs.move(
-          userDirectory + "/model_meta.json",
-          appDirectory + "/src/assets/model/model_meta.json"
-        );
-      })
-      .then(() => {
-        event.reply("model-files-move-reply", "modal files move successfully");
-      })
-      .catch((err) => console.error(err));
   });
 } catch (e) {
   // Catch Error

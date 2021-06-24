@@ -15,13 +15,6 @@ export class CollectingComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    const isTrainingDone = window.localStorage.getItem(
-      "ng-posture-budy-training-done"
-    );
-    if (isTrainingDone) {
-      this.router.navigate(["home"]);
-      return;
-    }
     this.createCanvas();
   }
 
@@ -29,16 +22,15 @@ export class CollectingComponent implements OnInit {
   poseNet: any;
   pose: any;
   skeleton: any;
-
   brain: any;
-
   position: any;
   state = "waiting";
   postureLabel: any;
   recording = false;
   startRecording: any;
   stopRecording: any;
-  mode = "collecting";
+  loader: HTMLElement;
+  container: HTMLElement;
 
   delay(time) {
     return new Promise((resolve, reject) => {
@@ -64,7 +56,6 @@ export class CollectingComponent implements OnInit {
     let selectTag: HTMLElement = document.querySelector("#postures");
     this.position = selectTag["value"];
     this.state = "collecting";
-    console.log("collecting");
   }
 
   // this function is for stop collecting conrdinates
@@ -74,49 +65,18 @@ export class CollectingComponent implements OnInit {
     this.startRecording.classList.remove("disable");
     this.startRecording.disabled = false;
     this.state = "waiting";
-    console.log("not collecting");
   }
 
-  // this function is for save the postures into json file
-
-  saveData() {
-    this.trainModel();
-    // this.brain.saveData("postures");
-    // const output = {
-    //   data: this.brain.neuralNetworkData.data.raw,
-    // };
-    // setTimeout(() => {
-    //   ipcRenderer.on("json-file-move-reply", this.afterJsonFileMove.bind(this));
-    //   ipcRenderer.send("json-file-move-message", output);
-    // }, 0);
-  }
-
-  afterJsonFileMove(event?, arg?) {
-    console.log(arg); // prints "pong"
-    this.exportData();
-  }
-
-  // this function is for export the model files which is created by json file
-  exportData() {
-    this.brain.loadData("assets/postures.json");
-    this.trainModel();
-  }
-
-  // this function is for priview the results
-  preview() {
-    this.mode = "preview";
-    this.setup.bind(this);
-    let buttonsSection: HTMLElement = document.querySelector(".container");
-    buttonsSection[0].style.display = "none";
-  }
-
+  // This is a main function which create canvas for webcam and it also use the ml5 functions
   setup(p: any) {
     p.setup = () => {
       this.startRecording = document.getElementById("start");
       this.stopRecording = document.getElementById("stop");
 
-      p.createCanvas(300, 300);
-
+      const canvasCreate = p.createCanvas(300, 300);
+      document
+        .getElementById("webcam-container")
+        .appendChild(canvasCreate.canvas);
       this.video = p.createCapture(p.VIDEO);
       this.video.remove();
       this.video.size(300, 300);
@@ -127,23 +87,17 @@ export class CollectingComponent implements OnInit {
         inputs: 34,
         outputs: 2,
         task: "classification",
-        debug: true,
       };
       this.brain = neuralNetwork(options);
-
-      if (this.mode === "preview") {
-        const modelInfo = {
-          model: "model/model.json",
-          metadata: "model/model_meta.json",
-          weights: "model/model.weights.bin",
-        };
-        this.brain.load(modelInfo, this.brainLoaded.bind(this));
-      }
       p.draw = this.draw.bind(this);
     };
   }
 
+  // This function is to train the json data
   trainModel() {
+    this.container.style.display = "none";
+    this.loader.style.display = "block";
+    this.p5.remove();
     this.brain.normalizeData();
     let options = {
       epochs: 50,
@@ -151,31 +105,20 @@ export class CollectingComponent implements OnInit {
     this.brain.train(options, this.finishedTraining.bind(this));
   }
 
-  brainLoaded() {
-    console.log("pose predicting ready!");
-    this.predictPosition();
-  }
-
+  // This function creates the models files and then navigate to the home page
   finishedTraining() {
-    this.brain.save(() => {
-      console.log("files saved now");
+    alert("please save the files on Downloads/ng-posture-buddy/model");
+    this.brain.save();
+    ipcRenderer.once("file-created", (event, arg) => {
+      this.router.navigate(["home"]);
     });
-    // ipcRenderer.once(
-    //   "model-files-move-reply",
-    //   this.afterModelsFileMove.bind(this)
-    // );
-    // ipcRenderer.send("model-files-move-message", "ping");
-    // window.localStorage.setItem("ng-posture-budy-training-done", "true");
-    // predictPosition();
+    ipcRenderer.send("check-files-are-created", "ping");
   }
 
-  afterModelsFileMove(event, arg) {
-    event.preventDefault();
-    console.log(arg); // prints "pong"
-  }
-
+  // This function is created to push the x,y cordinates of body parts into new inputs array and send it into the brain classify function
   predictPosition() {
     if (this.pose) {
+      // if the pose varaible is not empty this code will execute
       let inputs = [];
       for (let i = 0; i < this.pose.keypoints.length; i++) {
         let x = this.pose.keypoints[i].position.x;
@@ -183,22 +126,19 @@ export class CollectingComponent implements OnInit {
         inputs.push(x);
         inputs.push(y);
       }
-      this.brain.classify(inputs, this.gotResult.bind(this));
     } else {
+      // if the pose varaible is empty this code will execute and set the timeout of 100 miliseconds and call this function again
       setTimeout(this.predictPosition.bind(this), 100);
     }
   }
 
-  gotResult(error, results) {
-    this.postureLabel = results[0].label;
-    this.predictPosition();
-  }
-
+  // This function get the cordinates of body and set it into the pose and skeleton varaibles
   gotPoses(poses) {
     if (poses.length > 0) {
       this.pose = poses[0].pose;
       this.skeleton = poses[0].skeleton;
       if (this.state == "collecting") {
+        // if the state is collecting this code will excute to collect the cordinates
         let inputs = [];
         for (let i = 0; i < this.pose.keypoints.length; i++) {
           let x = this.pose.keypoints[i].position.x;
@@ -212,11 +152,15 @@ export class CollectingComponent implements OnInit {
     }
   }
 
+  // This function shows the poseNet is ready
   modelLoaded() {
     console.log("poseNet ready");
   }
 
+  // This function set the width and height of webcam view, it also process and show the positions with percentage according to the cordinates
   draw() {
+    this.loader = document.querySelector("app-loader");
+    this.container = document.querySelector(".container");
     this.p5.push();
     this.p5.translate(this.video.width, 0);
     this.p5.scale(-1, 1);
@@ -241,14 +185,7 @@ export class CollectingComponent implements OnInit {
     }
     this.p5.pop();
 
-    if (this.postureLabel) {
-      const postureName: HTMLElement = document.querySelector(".posture-name");
-      if (this.postureLabel === "right position") {
-        postureName.style.color = "#5cb85c";
-      } else {
-        postureName.style.color = "#d9534f";
-      }
-      postureName.innerHTML = this.postureLabel;
-    }
+    this.container.style.display = "flex";
+    this.loader.style.display = "none";
   }
 }
