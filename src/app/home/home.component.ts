@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import * as p5 from "p5";
-import * as ml5 from "ml5";
+import p5 from "p5";
+import ml5 from "ml5";
 import { userDirectory } from "../../assets/electron-config";
 
 @Component({
@@ -28,6 +28,7 @@ export class HomeComponent implements OnInit {
 
   // This function is called from inIt() and this function calls the main setup() function
   private createCanvas() {
+    console.log(p5);
     this.p5 = new p5(this.setup.bind(this));
   }
 
@@ -147,7 +148,8 @@ export class HomeComponent implements OnInit {
             // This setTimeOut is execute after 1 minute again and again when the user not correct his positon in 1 minute
             Notification.requestPermission().then(function () {
               new Notification("Warning", {
-                body: "You've been sitting with a wrong posture for about a minute now!",
+                body:
+                  "You've been sitting with a wrong posture for about a minute now!",
               });
             });
             this.clearTimer();

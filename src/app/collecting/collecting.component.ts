@@ -1,9 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import * as p5 from "p5";
+import p5 from "p5";
 import { poseNet, neuralNetwork } from "ml5";
 import { Router } from "@angular/router";
+
 const electron = window.require("electron");
-const { ipcRenderer } = electron;
 
 @Component({
   selector: "app-collecting",
@@ -99,6 +99,8 @@ export class CollectingComponent implements OnInit {
   finishedTraining(): void {
     alert("please save the files on Downloads/ng-posture-buddy/model");
     this.brain.save();
+    const { ipcRenderer } = electron;
+
     ipcRenderer.once("files-created", () => {
       this.router.navigate(["home"]);
     });

@@ -98,18 +98,11 @@
           }
         },
         "test": {
-          "builder": "@angular-builders/custom-webpack:karma",
+          "builder": "@angular-builders/jest:run",
           "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills-test.ts",
-            "tsConfig": "src/tsconfig.spec.json",
-            "karmaConfig": "src/karma.conf.js",
-            "scripts": [],
-            "styles": ["src/styles.scss"],
-            "assets": ["src/assets"],
-            "customWebpackConfig": {
-              "path": "./angular.webpack.js"
-            }
+            "tsConfig": "<rootDir>/src/tsconfig.test.json",
+            "collectCoverage": false,
+            "forceExit": true
           }
         },
         "lint": {
