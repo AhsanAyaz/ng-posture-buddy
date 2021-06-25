@@ -2,13 +2,12 @@ import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
 import * as fs from "fs-extra";
+import { userDirectory } from "../src/assets/electron-config";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
 
 let win: BrowserWindow = null;
-const userDirectory =
-  process.env.USERPROFILE + "/Downloads/ng-posture-buddy/model";
 const args = process.argv.slice(1),
   serve = args.some((val) => val === "--serve");
 
@@ -90,15 +89,18 @@ try {
     }
   });
 
-  ipcMain.on("check-files-are-created", (event, arg) => {
+  ipcMain.on("creating-models-files", (event) => {
     try {
+      if (fs.readdirSync(userDirectory).length !== 0) {
+        fs.emptyDirSync(userDirectory);
+      }
       setInterval(() => {
         if (
           fs.existsSync(userDirectory + "/model.json") &&
           fs.existsSync(userDirectory + "/model.weights.bin") &&
           fs.existsSync(userDirectory + "/model_meta.json")
         ) {
-          event.reply("file-created", "json move successfully");
+          event.reply("files-created", "json move successfully");
         }
       }, 2000);
     } catch (err) {

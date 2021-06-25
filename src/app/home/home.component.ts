@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import * as p5 from "p5";
 import * as ml5 from "ml5";
+import { userDirectory } from "../../assets/electron-config";
 
 @Component({
   selector: "app-home",
@@ -18,23 +19,12 @@ export class HomeComponent implements OnInit {
   poseNet: any;
   pose: any;
   brain: any;
-  rightPosture: any;
-  wrongPosture: any;
-  rightPostureValue: any;
-  wrongPostureValue: any;
+  rightPosture: number;
+  wrongPosture: number;
+  rightPostureValue: number;
+  wrongPostureValue: number;
   postures: any;
   timer = null;
-  userDirectory = process.env.USERPROFILE + "/Downloads/ng-posture-buddy/model";
-
-  delay(time: number) {
-    return new Promise((resolve, reject) => {
-      if (isNaN(time)) {
-        reject(new Error("delay requires a valid number."));
-      } else {
-        setTimeout(resolve, time);
-      }
-    });
-  }
 
   // This function is called from inIt() and this function calls the main setup() function
   private createCanvas() {
@@ -42,16 +32,16 @@ export class HomeComponent implements OnInit {
   }
 
   // This is a main function which create canvas for webcam and it also use the ml5 functions
-  setup(p: any) {
+  setup(p: any): void {
     p.setup = () => {
-      let canvasCreate = p.createCanvas(300, 300);
+      const canvasCreate = p.createCanvas(300, 300);
       document
         .getElementById("webcam-container")
         .appendChild(canvasCreate.canvas);
       this.video = p.createCapture(p.VIDEO);
       this.video.size(300, 300);
       this.video.remove();
-      this.poseNet = ml5.poseNet(this.video, this.modelLoaded.bind(this));
+      this.poseNet = ml5.poseNet(this.video);
       this.poseNet.on("pose", this.gotPoses.bind(this));
 
       const options = {
@@ -62,7 +52,7 @@ export class HomeComponent implements OnInit {
       };
       this.brain = ml5.neuralNetwork(options);
       this.brain.load(
-        this.userDirectory + "/model.json",
+        userDirectory + "/model.json",
         this.brainLoaded.bind(this)
       );
     };
@@ -71,13 +61,13 @@ export class HomeComponent implements OnInit {
   }
 
   // This function is called after brain loaded the models files and then it call the predictPosition function
-  brainLoaded() {
+  brainLoaded(): void {
     console.log("pose predicting ready!");
     this.predictPosition();
   }
 
   // This function is created to push the x,y cordinates of body parts into new inputs array and send it into the brain classify function
-  predictPosition() {
+  predictPosition(): void {
     if (this.pose) {
       // if the pose varaible is not empty this code will execute
       const inputs = [];
@@ -97,42 +87,37 @@ export class HomeComponent implements OnInit {
   }
 
   // This function is set the postures result into the postures varaible and then call the predictPostion function
-  gotResult(error: any, results: any) {
+  gotResult(error: any, results: any): void {
     this.postures = results;
     this.predictPosition();
   }
 
   // This function get the cordinates of body and set it into the pose varaible
-  gotPoses(poses: string | any[]) {
+  gotPoses(poses: string | any[]): void {
     if (poses.length > 0) {
       this.pose = poses[0].pose;
     }
   }
 
-  // This function is called when webcam is show on page
-  modelLoaded() {
-    console.log("poseNet ready");
-  }
-
   // This function is created to clear the notification setTimeOut interval timer
-  clearTimer() {
+  clearTimer(): void {
     clearTimeout(this.timer);
     this.timer = null;
   }
 
   // This function set the width and height of webcam view, it also process and show the positions with percentage according to the cordinates
-  draw() {
+  draw(): void {
     this.p5.push();
     this.p5.translate(this.video.width, 0);
     this.p5.scale(-1, 1);
     +this.p5.image(this.video, 0, 0, this.video.width, this.video.height);
 
-    let label1: HTMLElement = document.querySelector("#label1");
-    let label2: HTMLElement = document.querySelector("#label2");
-    let bar1: HTMLElement = document.querySelector("#bar1");
-    let bar2: HTMLElement = document.querySelector("#bar2");
-    let container: HTMLElement = document.querySelector(".container");
-    let loader: HTMLElement = document.querySelector("app-loader");
+    const label1: HTMLElement = document.querySelector("#label1");
+    const label2: HTMLElement = document.querySelector("#label2");
+    const bar1: HTMLElement = document.querySelector("#bar1");
+    const bar2: HTMLElement = document.querySelector("#bar2");
+    const container: HTMLElement = document.querySelector(".container");
+    const loader: HTMLElement = document.querySelector("app-loader");
 
     this.p5.pop();
 
@@ -154,12 +139,33 @@ export class HomeComponent implements OnInit {
           }
         }
       );
+      if (this.rightPostureValue < this.wrongPostureValue) {
+        // If the wrong posture is greater than right posture about 1 minute it will show the notification to correct your position
+        if (!this.timer) {
+          // If the timer is empty this code will execute
+          this.timer = setTimeout(() => {
+            // This setTimeOut is execute after 1 minute again and again when the user not correct his positon in 1 minute
+            Notification.requestPermission().then(function () {
+              new Notification("Warning", {
+                body: "You've been sitting with a wrong posture for about a minute now!",
+              });
+            });
+            this.clearTimer();
+          }, 5000);
+        }
+      } else {
+        // if the right position is greate than wrong position this code will execute
+        if (this.timer) {
+          // if setTimeOut already set into timer this code will excute and call the clearTimer function
+          this.clearTimer();
+        }
+      }
       this.rightPostureValue = Math.floor(this.rightPosture);
       this.wrongPostureValue = Math.floor(this.wrongPosture);
-      bar1.innerText = this.rightPostureValue + "%";
-      bar2.innerText = this.wrongPostureValue + "%";
-      bar1.style.width = this.rightPostureValue + "%";
-      bar2.style.width = this.wrongPostureValue + "%";
+      bar1.innerText = `${this.rightPostureValue}%`;
+      bar2.innerText = `${this.wrongPostureValue}%`;
+      bar1.style.width = `${this.rightPostureValue}%`;
+      bar2.style.width = `${this.wrongPostureValue}%`;
       container.style.display = "block";
       loader.style.display = "none";
     }

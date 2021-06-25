@@ -1,16 +1,18 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { RouterTestingModule } from "@angular/router/testing";
+import { TranslateModule } from "@ngx-translate/core";
+import { SharedModule } from "../shared/shared.module";
+import { CollectingComponent } from "./collecting.component";
 
-import { CollectingComponent } from './collecting.component';
-
-describe('CollectingComponent', () => {
+describe("CollectingComponent", () => {
   let component: CollectingComponent;
   let fixture: ComponentFixture<CollectingComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CollectingComponent ]
-    })
-    .compileComponents();
+      declarations: [CollectingComponent],
+      imports: [TranslateModule.forRoot(), RouterTestingModule, SharedModule],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -19,7 +21,7 @@ describe('CollectingComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });
