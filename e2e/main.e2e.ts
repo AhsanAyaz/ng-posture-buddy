@@ -16,10 +16,4 @@ describe("ng-posture-buddy App", function () {
     const count = await client.getWindowCount();
     expect(count).to.equal(1);
   });
-
-  it("should display message saying App works !", async function () {
-    const elem = await client.$("app-home h1");
-    const text = await elem.getText();
-    expect(text).to.equal("App works !");
-  });
 });
