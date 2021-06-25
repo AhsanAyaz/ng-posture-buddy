@@ -1,10 +1,10 @@
-  
-  @font-face {
-    font-family: 'Roboto';
-    src: url('./assets/fonts/Roboto-Regular.ttf');
-  }
+@font-face {
+  font-family: "Roboto";
+  src: url("./assets/fonts/Roboto-Regular.ttf");
+}
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 
@@ -16,8 +16,7 @@ body {
   justify-content: space-evenly;
   align-items: center;
   flex-direction: column;
-  font-family: 'Roboto';
-  background-color: #DDD;
+  font-family: "Roboto";
   height: 100vh;
   margin: 0px;
 }
@@ -36,29 +35,12 @@ body {
   -webkit-animation-name: animatebottom;
   -webkit-animation-duration: 1s;
   animation-name: animatebottom;
-  animation-duration: 1s
-}
-
-#webcam-container canvas {
-  border: 1px solid;
-  border-radius: 12px;
+  animation-duration: 1s;
 }
 
 .heading {
   font-size: 14px;
   padding: 20px;
-}
-
-#webcam-container {
-  border-top: 2px solid #DDD;
-  border-bottom: 2px solid #DDD;
-  padding: 20px 0px;
-  text-align: center;
-  height: 300px;
-}
-
-#webcam-container canvas {
-  border-radius: 12px;
 }
 
 /* Add animation to "page content" */
@@ -67,31 +49,35 @@ body {
   -webkit-animation-name: animatebottom;
   -webkit-animation-duration: 1s;
   animation-name: animatebottom;
-  animation-duration: 1s
+  animation-duration: 1s;
 }
 
 @-webkit-keyframes animatebottom {
-  from { 
-    left:-100px; opacity:0
-  } 
+  from {
+    left: -100px;
+    opacity: 0;
+  }
   to {
-    left:0px; opacity:1 
+    left: 0px;
+    opacity: 1;
   }
 }
 
-@keyframes animatebottom { 
+@keyframes animatebottom {
   from {
-    left:-100px;
-    opacity:0 
-  } 
+    left: -100px;
+    opacity: 0;
+  }
   to {
-    left:0;
-    opacity:1
+    left: 0;
+    opacity: 1;
   }
 }
 
 @keyframes s7 {
-  100% {transform: rotate(1turn)}
+  100% {
+    transform: rotate(1turn);
+  }
 }
 
 main {
