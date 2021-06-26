@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
+import * as fs from "fs-extra";
+import { userDirectory } from "../src/assets/electron-config";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
@@ -20,6 +22,7 @@ function createWindow(): BrowserWindow {
     width: size.width,
     height: size.height,
     webPreferences: {
+      webSecurity: false,
       nodeIntegration: true,
       allowRunningInsecureContent: serve ? true : false,
       contextIsolation: false, // false if you want to run 2e2 test with Spectron
@@ -60,7 +63,14 @@ try {
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
-  app.on("ready", () => setTimeout(createWindow, 400));
+  app.on("ready", () => {
+    setTimeout(createWindow, 400);
+    if (!fs.existsSync(userDirectory)) {
+      fs.mkdirSync(userDirectory, {
+        recursive: true,
+      });
+    }
+  });
 
   // Quit when all windows are closed.
   app.on("window-all-closed", () => {
@@ -79,9 +89,23 @@ try {
     }
   });
 
-  ipcMain.on("asynchronous-message", (event, arg) => {
-    console.log("copying files");
-    event.reply("asynchronous-reply", "pong");
+  ipcMain.on("creating-models-files", (event) => {
+    try {
+      if (fs.readdirSync(userDirectory).length !== 0) {
+        fs.emptyDirSync(userDirectory);
+      }
+      setInterval(() => {
+        if (
+          fs.existsSync(userDirectory + "/model.json") &&
+          fs.existsSync(userDirectory + "/model.weights.bin") &&
+          fs.existsSync(userDirectory + "/model_meta.json")
+        ) {
+          event.reply("files-created", "json move successfully");
+        }
+      }, 2000);
+    } catch (err) {
+      console.log(err);
+    }
   });
 } catch (e) {
   // Catch Error

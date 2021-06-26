@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "angular-electron": {
+    "ng-posture-buddy": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -16,12 +16,8 @@
             "main": "src/main.ts",
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
-            "assets": [
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
+            "assets": ["src/assets"],
+            "styles": ["src/styles.scss"],
             "scripts": [],
             "customWebpackConfig": {
               "path": "./angular.webpack.js"
@@ -81,58 +77,44 @@
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "angular-electron:build"
+            "browserTarget": "ng-posture-buddy:build"
           },
           "configurations": {
             "dev": {
-              "browserTarget": "angular-electron:build:dev"
+              "browserTarget": "ng-posture-buddy:build:dev"
             },
             "web": {
-              "browserTarget": "angular-electron:build:web"
+              "browserTarget": "ng-posture-buddy:build:web"
             },
             "production": {
-              "browserTarget": "angular-electron:build:production"
+              "browserTarget": "ng-posture-buddy:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "angular-electron:build"
+            "browserTarget": "ng-posture-buddy:build"
           }
         },
         "test": {
-          "builder": "@angular-builders/custom-webpack:karma",
+          "builder": "@angular-builders/jest:run",
           "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills-test.ts",
-            "tsConfig": "src/tsconfig.spec.json",
-            "karmaConfig": "src/karma.conf.js",
-            "scripts": [],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "assets": [
-              "src/assets"
-            ],
-            "customWebpackConfig": {
-              "path": "./angular.webpack.js"
-            }
+            "tsConfig": "<rootDir>/src/tsconfig.test.json",
+            "collectCoverage": false,
+            "forceExit": true
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": ".eslintrc.json",
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "app/**.ts"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "app/**.ts"]
           }
         }
       }
     },
-    "angular-electron-e2e": {
+    "ng-posture-buddy-e2e": {
       "root": "e2e",
       "projectType": "application",
       "architect": {
@@ -140,15 +122,13 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "eslintConfig": ".eslintrc.json",
-            "lintFilePatterns": [
-              "e2e/**/*.ts"
-            ]
+            "lintFilePatterns": ["e2e/**/*.ts"]
           }
         }
       }
     }
   },
-  "defaultProject": "angular-electron",
+  "defaultProject": "ng-posture-buddy",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

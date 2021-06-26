@@ -1,3 +1,49 @@
-:host {
-  
+.labels {
+  padding: 20px;
+}
+
+.posture-heading {
+  color: #5a5858;
+  margin-bottom: 0px;
+}
+
+#label-container {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.progress {
+  padding: 20px 0px;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #ddd;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
+.bar {
+  width: 10%;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+  border-radius: 6px;
+}
+
+#label1 {
+  color: #5cb85c;
+}
+
+#label2 {
+  color: #d9534f;
+}
+
+#bar1 {
+  background-color: #5cb85c;
+}
+
+#bar2 {
+  background-color: #d9534f;
 }
