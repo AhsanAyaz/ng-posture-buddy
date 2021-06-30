@@ -102,13 +102,13 @@ export class HomeComponent implements OnInit {
   }
 
   // This function is created to clear the notification setTimeOut interval notificationTimer
-  outerClearTimer(): void {
+  notificationClearTimer(): void {
     clearTimeout(this.notificationTimer);
     this.notificationTimer = null;
   }
 
   // This function is created to clear the notification setTimeOut interval positionCorrectedTimer
-  innerClearTimer(): void {
+  positionCorrectedClearTimer(): void {
     clearTimeout(this.positionCorrectedTimer);
     this.positionCorrectedTimer = null;
   }
@@ -150,7 +150,7 @@ export class HomeComponent implements OnInit {
       if (this.rightPostureValue < this.wrongPostureValue) {
         if (this.positionCorrectedTimer) {
           // If the positionCorrectedTimer is set but user change the position in wrong posture it will clear the positionCorrectedTimer
-          this.innerClearTimer();
+          this.positionCorrectedClearTimer();
         }
         // If the wrong posture is greater than right posture about 1 minute it will show the notification to correct your position
         if (!this.notificationTimer) {
@@ -162,7 +162,7 @@ export class HomeComponent implements OnInit {
                 body: "You've been sitting with a wrong posture for about a minute now!",
               });
             });
-            this.outerClearTimer();
+            this.notificationClearTimer();
           }, 60000);
         }
       } else {
@@ -173,8 +173,8 @@ export class HomeComponent implements OnInit {
             // If the positionCorrectedTimer is empty this code will execute
             this.positionCorrectedTimer = setTimeout(() => {
               // This setTimeOut is execute after 15 seconds if the user stil in right position
-              this.outerClearTimer();
-              this.innerClearTimer();
+              this.notificationClearTimer();
+              this.positionCorrectedClearTimer();
             }, 15000);
           }
         }
