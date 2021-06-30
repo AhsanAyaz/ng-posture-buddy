@@ -24,8 +24,8 @@ export class HomeComponent implements OnInit {
   rightPostureValue: number;
   wrongPostureValue: number;
   postures: any;
-  outerTimer = null;
-  innerTimer = null;
+  notificationTimer = null;
+  positionCorrectedTimer = null;
 
   // This function is called from inIt() and this function calls the main setup() function
   private createCanvas() {
@@ -101,16 +101,16 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // This function is created to clear the notification setTimeOut interval outerTimer
+  // This function is created to clear the notification setTimeOut interval notificationTimer
   outerClearTimer(): void {
-    clearTimeout(this.outerTimer);
-    this.outerTimer = null;
+    clearTimeout(this.notificationTimer);
+    this.notificationTimer = null;
   }
 
-  // This function is created to clear the notification setTimeOut interval innerTimer
+  // This function is created to clear the notification setTimeOut interval positionCorrectedTimer
   innerClearTimer(): void {
-    clearTimeout(this.innerTimer);
-    this.innerTimer = null;
+    clearTimeout(this.positionCorrectedTimer);
+    this.positionCorrectedTimer = null;
   }
 
   // This function set the width and height of webcam view, it also process and show the positions with percentage according to the cordinates
@@ -148,14 +148,14 @@ export class HomeComponent implements OnInit {
         }
       );
       if (this.rightPostureValue < this.wrongPostureValue) {
-        if (this.innerTimer) {
-          // If the innerTimer is set but user change the position in wrong posture it will clear the innerTimer
+        if (this.positionCorrectedTimer) {
+          // If the positionCorrectedTimer is set but user change the position in wrong posture it will clear the positionCorrectedTimer
           this.innerClearTimer();
         }
         // If the wrong posture is greater than right posture about 1 minute it will show the notification to correct your position
-        if (!this.outerTimer) {
-          // If the outerTimer is empty this code will execute
-          this.outerTimer = setTimeout(() => {
+        if (!this.notificationTimer) {
+          // If the notificationTimer  is empty this code will execute
+          this.notificationTimer = setTimeout(() => {
             // This setTimeOut is execute after 1 minute again and again when the user not correct his positon in 1 minute
             Notification.requestPermission().then(function () {
               new Notification("Warning", {
@@ -167,11 +167,11 @@ export class HomeComponent implements OnInit {
         }
       } else {
         // if the right position is greate than wrong position this code will execute
-        if (this.outerTimer) {
-          // If the outerTimer is empty this code will execute
-          if (!this.innerTimer) {
-            // If the innerTimer is empty this code will execute
-            this.innerTimer = setTimeout(() => {
+        if (this.notificationTimer) {
+          // If the notificationTimer  is empty this code will execute
+          if (!this.positionCorrectedTimer) {
+            // If the positionCorrectedTimer is empty this code will execute
+            this.positionCorrectedTimer = setTimeout(() => {
               // This setTimeOut is execute after 15 seconds if the user stil in right position
               this.outerClearTimer();
               this.innerClearTimer();
