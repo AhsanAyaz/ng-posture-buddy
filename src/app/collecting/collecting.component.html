@@ -1,26 +1,23 @@
-<div class="container animate-bottom">
-  <div class="heading">
-    <h1>Posture Buddy</h1>
-  </div>
+<mat-card
+  class="example-card"
+  [ngClass]="{
+    'animate-bottom': postureLabel === 'right position',
+    'container-animation': postureLabel === 'right position'
+  }"
+>
+  <mat-toolbar color="primary">
+    <mat-card-header>
+      <h1>Posture Buddy</h1>
+    </mat-card-header>
+  </mat-toolbar>
   <div id="webcam-container"></div>
-  <div id="buttons-section">
-    <div>
-      <button id="start" class="btn" (click)="start()">Start recording</button>
+  <mat-card-content>
+    <div id="timer" *ngIf="timer > 0">
+      <h3>{{ title }}</h3>
+      <h2>{{ timer }}</h2>
     </div>
-    <div>
-      <button id="stop" class="disable btn" disabled (click)="stop()">
-        Stop recording
-      </button>
+    <div id="loader" *ngIf="timer === 0">
+      <mat-spinner [diameter]="50"></mat-spinner>
     </div>
-    <div class="box">
-      <select id="postures">
-        <option value="right position">Right Position</option>
-        <option value="wrong position">Wrong Position</option>
-      </select>
-    </div>
-    <div>
-      <button class="btn" (click)="trainModel()">Save</button>
-    </div>
-  </div>
-</div>
-<app-loader></app-loader>
+  </mat-card-content>
+</mat-card>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { AfterViewInit, Component, OnInit } from "@angular/core";
 import p5 from "p5";
 import ml5 from "ml5";
 import { userDirectory } from "../../assets/electron-config";
@@ -8,10 +8,12 @@ import { userDirectory } from "../../assets/electron-config";
   templateUrl: "./home.component.html",
   styleUrls: ["./home.component.scss"],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
   private p5;
   constructor() {}
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ngAfterViewInit() {
     this.createCanvas();
   }
 
@@ -29,7 +31,6 @@ export class HomeComponent implements OnInit {
 
   // This function is called from inIt() and this function calls the main setup() function
   private createCanvas() {
-    console.log(p5);
     this.p5 = new p5(this.setup.bind(this));
   }
 
@@ -37,10 +38,16 @@ export class HomeComponent implements OnInit {
   setup(p: any): void {
     p.setup = () => {
       const canvasCreate = p.createCanvas(500, 300);
+      const constraints = {
+        audio: false,
+        video: {
+          aspectRatio: 16 / 9,
+        },
+      };
       document
-        .getElementById("webcam-container")
+        .getElementById("home-camera-feed")
         .appendChild(canvasCreate.canvas);
-      this.video = p.createCapture(p.VIDEO);
+      this.video = p.createCapture(constraints);
       this.video.size(500, 300);
       this.video.remove();
       this.poseNet = ml5.poseNet(this.video);
@@ -50,7 +57,6 @@ export class HomeComponent implements OnInit {
         inputs: 34,
         outputs: 2,
         task: "classification",
-        debug: true,
       };
       this.brain = ml5.neuralNetwork(options);
       this.brain.load(
@@ -124,8 +130,6 @@ export class HomeComponent implements OnInit {
     const label2: HTMLElement = document.querySelector("#label2");
     const bar1: HTMLElement = document.querySelector("#bar1");
     const bar2: HTMLElement = document.querySelector("#bar2");
-    const container: HTMLElement = document.querySelector(".container");
-    const loader: HTMLElement = document.querySelector("app-loader");
 
     this.p5.pop();
 
@@ -185,8 +189,6 @@ export class HomeComponent implements OnInit {
       bar2.innerText = `${this.wrongPostureValue}%`;
       bar1.style.width = `${this.rightPostureValue}%`;
       bar2.style.width = `${this.wrongPostureValue}%`;
-      container.style.display = "block";
-      loader.style.display = "none";
     }
   }
 }
