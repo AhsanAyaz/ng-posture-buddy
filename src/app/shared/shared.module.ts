@@ -25,16 +25,17 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     MatToolbarModule,
     MatProgressSpinnerModule,
   ],
+  entryComponents: [ModalComponent],
   exports: [
     TranslateModule,
     WebviewDirective,
     FormsModule,
-    ModalComponent,
     MatButtonModule,
     MatDialogModule,
     MatCardModule,
     MatToolbarModule,
     MatProgressSpinnerModule,
+    ModalComponent,
   ],
 })
 export class SharedModule {}
