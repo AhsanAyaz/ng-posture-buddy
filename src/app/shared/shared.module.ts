@@ -12,9 +12,15 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { HeaderComponent } from "./header/header.component";
 
 @NgModule({
-  declarations: [PageNotFoundComponent, WebviewDirective, ModalComponent],
+  declarations: [
+    PageNotFoundComponent,
+    WebviewDirective,
+    ModalComponent,
+    HeaderComponent,
+  ],
   imports: [
     CommonModule,
     TranslateModule,
@@ -30,12 +36,13 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     TranslateModule,
     WebviewDirective,
     FormsModule,
+    ModalComponent,
+    HeaderComponent,
     MatButtonModule,
     MatDialogModule,
     MatCardModule,
     MatToolbarModule,
     MatProgressSpinnerModule,
-    ModalComponent,
   ],
 })
 export class SharedModule {}
