@@ -1,10 +1,12 @@
-<div class="container">
-  <div class="heading">
-    <h1>Posture Buddy</h1>
-  </div>
-  <div id="webcam-container"></div>
-  <div class="labels">
-    <h2 class="posture-heading">Postures</h2>
+<mat-card class="example-card container-animation">
+  <mat-toolbar color="primary">
+    <mat-card-header>
+      <mat-card-title>Posture Buddy</mat-card-title>
+    </mat-card-header>
+  </mat-toolbar>
+  <div id="home-camera-feed"></div>
+  <mat-card-content id="posture-section">
+    <h2>Postures</h2>
     <div id="label-container">
       <div class="progress">
         <label for="name" id="label1"></label>
@@ -19,6 +21,5 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
-<app-loader></app-loader>
+  </mat-card-content>
+</mat-card>

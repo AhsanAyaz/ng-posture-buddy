@@ -3,6 +3,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "../shared/shared.module";
 import { CollectingComponent } from "./collecting.component";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 describe("CollectingComponent", () => {
   let component: CollectingComponent;
@@ -11,7 +12,12 @@ describe("CollectingComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [CollectingComponent],
-      imports: [TranslateModule.forRoot(), RouterTestingModule, SharedModule],
+      imports: [
+        TranslateModule.forRoot(),
+        RouterTestingModule,
+        SharedModule,
+        BrowserAnimationsModule,
+      ],
     }).compileComponents();
   });
 

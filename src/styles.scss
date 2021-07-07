@@ -22,7 +22,7 @@ body {
 }
 
 .container {
-  display: none;
+  display: flex;
   flex-direction: column;
   width: 500px;
   box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%);
@@ -30,7 +30,9 @@ body {
   background-color: #fff;
   margin: 0 auto;
   height: 728px;
+}
 
+.container-animation {
   position: relative;
   -webkit-animation-name: animatebottom;
   -webkit-animation-duration: 1s;
@@ -43,6 +45,19 @@ body {
   padding: 20px;
 }
 
+.example-card {
+  flex-direction: column;
+  padding: 0px !important;
+}
+
+#loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  margin-bottom: 2px;
+}
+
 /* Add animation to "page content" */
 .animate-bottom {
   position: relative;
@@ -50,36 +65,4 @@ body {
   -webkit-animation-duration: 1s;
   animation-name: animatebottom;
   animation-duration: 1s;
-}
-
-@-webkit-keyframes animatebottom {
-  from {
-    left: -100px;
-    opacity: 0;
-  }
-  to {
-    left: 0px;
-    opacity: 1;
-  }
-}
-
-@keyframes animatebottom {
-  from {
-    left: -100px;
-    opacity: 0;
-  }
-  to {
-    left: 0;
-    opacity: 1;
-  }
-}
-
-@keyframes s7 {
-  100% {
-    transform: rotate(1turn);
-  }
-}
-
-main {
-  order: -1;
 }

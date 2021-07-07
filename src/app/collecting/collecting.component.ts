@@ -1,7 +1,9 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import p5 from "p5";
 import { poseNet, neuralNetwork } from "ml5";
 import { Router } from "@angular/router";
+import { MatDialog } from "@angular/material/dialog";
+import { ModalComponent } from "../shared/components/modal/modal.component";
 
 const electron = window.require("electron");
 
@@ -10,13 +12,9 @@ const electron = window.require("electron");
   templateUrl: "./collecting.component.html",
   styleUrls: ["./collecting.component.scss"],
 })
-export class CollectingComponent implements OnInit {
+export class CollectingComponent implements OnInit, OnDestroy {
   private p5;
-  constructor(private router: Router) {}
-
-  ngOnInit(): void {
-    this.createCanvas();
-  }
+  constructor(private router: Router, public dialog: MatDialog) {}
 
   video: any;
   poseNet: any;
@@ -25,12 +23,27 @@ export class CollectingComponent implements OnInit {
   brain: any;
   position: any;
   state = "waiting";
-  postureLabel: any;
-  recording = false;
-  startRecording: any;
-  stopRecording: any;
+  postureLabel: string;
   loader: HTMLElement;
   container: HTMLElement;
+  title: string;
+  timer = 0;
+  instructionsToUser = [
+    "Please sit straight, look at the monitor",
+    "Please sit straight and tilt your face left and right",
+    "Please sit straight and tilt your face up and down",
+  ];
+
+  ngOnInit(): void {
+    this.loader = document.querySelector("app-loader");
+    this.container = document.querySelector(".example-card");
+    this.showGatheringDataModal("right position");
+  }
+
+  ngOnDestroy(): void {
+    this.p5.remove();
+    this.video.remove();
+  }
 
   // This function is called from inIt() and this function calls the main setup() function
   private createCanvas() {
@@ -38,36 +51,30 @@ export class CollectingComponent implements OnInit {
   }
 
   // this function for collect conrdinates and also set posture values
-  start(): void {
-    this.startRecording.classList.add("disable");
-    this.startRecording.disabled = true;
-    this.stopRecording.classList.remove("disable");
-    this.stopRecording.disabled = false;
-    const selectTag: HTMLElement = document.querySelector("#postures");
-    this.position = selectTag["value"];
+  collectPostures(): void {
+    this.position = this.postureLabel;
     this.state = "collecting";
   }
 
   // this function is for stop collecting conrdinates
-  stop(): void {
-    this.stopRecording.classList.add("disable");
-    this.stopRecording.disabled = true;
-    this.startRecording.classList.remove("disable");
-    this.startRecording.disabled = false;
+  stopCollectingPostures(): void {
     this.state = "waiting";
   }
 
   // This is a main function which create canvas for webcam and it also use the ml5 functions
   setup(p: any): void {
     p.setup = () => {
-      this.startRecording = document.getElementById("start");
-      this.stopRecording = document.getElementById("stop");
-
       const canvasCreate = p.createCanvas(500, 300);
+      const constraints = {
+        audio: false,
+        video: {
+          aspectRatio: 16 / 9,
+        },
+      };
       document
         .getElementById("webcam-container")
         .appendChild(canvasCreate.canvas);
-      this.video = p.createCapture(p.VIDEO);
+      this.video = p.createCapture(constraints);
       this.video.remove();
       this.video.size(500, 300);
       this.poseNet = poseNet(this.video);
@@ -85,9 +92,6 @@ export class CollectingComponent implements OnInit {
 
   // This function is to train the json data
   trainModel(): void {
-    this.container.style.display = "none";
-    this.loader.style.display = "block";
-    this.p5.remove();
     this.brain.normalizeData();
     const options = {
       epochs: 50,
@@ -97,14 +101,27 @@ export class CollectingComponent implements OnInit {
 
   // This function creates the models files and then navigate to the home page
   finishedTraining(): void {
-    alert("please save the files on Downloads/ng-posture-buddy/model");
-    this.brain.save();
-    const { ipcRenderer } = electron;
-
-    ipcRenderer.once("files-created", () => {
-      this.router.navigate(["home"]);
+    const modal = this.dialog.open(ModalComponent, {
+      data: {
+        message: "please save the files on Downloads/ng-posture-buddy/model",
+      },
     });
-    ipcRenderer.send("creating-models-files");
+    modal.afterClosed().subscribe(() => {
+      this.brain.save();
+      const { ipcRenderer } = electron;
+
+      ipcRenderer.once("files-created", () => {
+        this.p5.remove();
+        this.goToHomePage();
+      });
+      ipcRenderer.send("creating-models-files");
+    });
+  }
+
+  goToHomePage() {
+    this.p5.remove();
+    this.video.remove();
+    this.router.navigate(["/home"]);
   }
 
   // This function is created to push the x,y cordinates of body parts into new inputs array and send it into the brain classify function
@@ -148,8 +165,6 @@ export class CollectingComponent implements OnInit {
 
   // This function set the width and height of webcam view, it also process and show the positions with percentage according to the cordinates
   draw(): void {
-    this.loader = document.querySelector("app-loader");
-    this.container = document.querySelector(".container");
     this.p5.push();
     this.p5.translate(this.video.width, 0);
     this.p5.scale(-1, 1);
@@ -173,8 +188,55 @@ export class CollectingComponent implements OnInit {
       }
     }
     this.p5.pop();
+  }
 
-    this.container.style.display = "flex";
-    this.loader.style.display = "none";
+  showGatheringDataModal(posture) {
+    this.postureLabel = posture;
+    if (this.postureLabel === "right position") {
+      this.createCanvas();
+    }
+    const modal = this.dialog.open(ModalComponent, {
+      hasBackdrop: false,
+      data: {
+        message:
+          this.postureLabel === "right position"
+            ? "We're now gathering data for the Correct Posture"
+            : "We're now gathering data for the Incorrect Posture",
+      },
+    });
+    modal.afterClosed().subscribe(() => {
+      this.container.style.display = "flex";
+      this.processForGatheringData(this.instructionsToUser[0]);
+    });
+  }
+
+  processForGatheringData(title) {
+    this.title = title;
+    this.collectPostures();
+    const timeOut = setInterval(() => {
+      if (this.timer < 15) {
+        this.timer++;
+      } else {
+        this.timer = 0;
+        clearInterval(timeOut);
+        this.stopCollectingPostures();
+        setTimeout(() => {
+          if (title === this.instructionsToUser[0]) {
+            this.processForGatheringData(this.instructionsToUser[1]);
+          } else if (title === this.instructionsToUser[1]) {
+            this.processForGatheringData(this.instructionsToUser[2]);
+          } else if (
+            (title =
+              this.instructionsToUser[1] &&
+              this.postureLabel === "right position")
+          ) {
+            this.showGatheringDataModal("wrong position");
+          } else {
+            this.timer = 0;
+            this.trainModel();
+          }
+        }, 2000);
+      }
+    }, 1000);
   }
 }

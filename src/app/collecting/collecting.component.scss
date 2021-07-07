@@ -32,3 +32,41 @@
   display: flex;
   margin: auto;
 }
+
+#timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@-webkit-keyframes animatebottom {
+  from {
+    left: -100px;
+    opacity: 0;
+  }
+  to {
+    left: 0px;
+    opacity: 1;
+  }
+}
+
+@keyframes animatebottom {
+  from {
+    left: -100px;
+    opacity: 0;
+  }
+  to {
+    left: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes s7 {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+main {
+  order: -1;
+}
