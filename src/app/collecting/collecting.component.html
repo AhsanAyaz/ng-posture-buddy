@@ -1,23 +1,20 @@
-<mat-card
-  class="example-card"
-  [ngClass]="{
-    'animate-bottom': postureLabel === 'right position',
-    'container-animation': postureLabel === 'right position'
-  }"
->
-  <mat-toolbar color="primary">
-    <mat-card-header>
-      <h1>Posture Buddy</h1>
-    </mat-card-header>
-  </mat-toolbar>
-  <div id="webcam-container"></div>
-  <mat-card-content>
-    <div id="timer" *ngIf="timer > 0">
-      <h3>{{ title }}</h3>
-      <h2>{{ timer }}</h2>
-    </div>
-    <div id="loader" *ngIf="timer === 0">
-      <mat-spinner [diameter]="50"></mat-spinner>
-    </div>
-  </mat-card-content>
-</mat-card>
+<div class="container">
+  <mat-card
+    class="example-card"
+    [ngClass]="{
+      'animate-bottom': postureLabel === 'right position',
+      'container-animation': postureLabel === 'right position'
+    }"
+  >
+    <div id="webcam-container"></div>
+    <mat-card-content>
+      <div id="instruction-section" *ngIf="timer > 0">
+        <h3>{{ title }}</h3>
+        <h2>{{ timer }}</h2>
+      </div>
+      <div id="loader-section" *ngIf="timer === 0">
+        <mat-spinner [diameter]="50"></mat-spinner>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
