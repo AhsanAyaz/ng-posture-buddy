@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit } from "@angular/core";
 import p5 from "p5";
-import ml5 from "ml5";
+import * as ml5 from "../../assets/ml5.js";
 import { userDirectory } from "../../assets/electron-config";
 
 @Component({

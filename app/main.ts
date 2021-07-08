@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
 import * as fs from "fs-extra";
-import { userDirectory } from "../src/assets/electron-config";
+import { userDirectory } from "./config";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
@@ -103,6 +103,7 @@ try {
   });
 
   ipcMain.on("creating-models-files", (event) => {
+    console.log("here in creating-models-files");
     try {
       if (fs.readdirSync(userDirectory.modelDirectory).length !== 0) {
         fs.emptyDirSync(userDirectory.modelDirectory);
@@ -113,14 +114,17 @@ try {
           fs.existsSync(userDirectory.modelDirectory + "/model.weights.bin") &&
           fs.existsSync(userDirectory.modelDirectory + "/model_meta.json")
         ) {
+          console.log("All files exist, sending the files created message");
           event.reply("files-created", "json move successfully");
         }
       }, 2000);
     } catch (err) {
       console.log(err);
+      console.log("^ Files saving check encountered an error");
     }
   });
 } catch (e) {
   // Catch Error
-  // throw e;
+  console.log("Something happened in the main block");
+  console.log(e);
 }

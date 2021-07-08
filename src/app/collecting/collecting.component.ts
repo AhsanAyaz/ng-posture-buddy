@@ -1,14 +1,15 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import p5 from "p5";
-import { poseNet, neuralNetwork } from "ml5";
+import * as ml5 from "../../assets/ml5.js";
 import { Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import { ModalComponent } from "../shared/components/modal/modal.component";
-import { userDirectory } from "../../assets/electron-config";
+import { userDirectory } from "../constants";
 
 const electron = window.require("electron");
 const sound = window.require("sound-play");
 
+const { poseNet, neuralNetwork } = ml5;
 @Component({
   selector: "app-collecting",
   templateUrl: "./collecting.component.html",
@@ -40,6 +41,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.loader = document.querySelector("app-loader");
     this.container = document.querySelector(".example-card");
     this.showGatheringDataModal("right position");
+    // this.trainModel();
   }
 
   ngOnDestroy(): void {
@@ -87,6 +89,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
         inputs: 34,
         outputs: 2,
         task: "classification",
+        downloadModelsOnSave: false,
       };
       this.brain = neuralNetwork(options);
       p.draw = this.draw.bind(this);
@@ -110,7 +113,9 @@ export class CollectingComponent implements OnInit, OnDestroy {
       },
     });
     modal.afterClosed().subscribe(() => {
-      this.brain.save();
+      this.brain.save("model", (data) => {
+        console.log("data returned", data);
+      });
       const { ipcRenderer } = electron;
 
       ipcRenderer.once("files-created", () => {
