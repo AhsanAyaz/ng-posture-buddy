@@ -83,13 +83,15 @@ try {
       "src/assets/sound/notification.mp3",
       path.join(userDirectory.soundDirectory, "notification.mp3"),
       (err) => {
-        if (err) return console.error(err);
+        if (err) {
+          console.error(err);
+        }
         load(path.join(userDirectory.soundDirectory, "notification.mp3")).then(
           (buffer) => {
             dingSoundBuffer = buffer;
+            console.log("success!");
           }
-        );
-        console.log("success!");
+        ).catch(err => console.error(err));
       }
     );
   });
