@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import p5 from "p5";
-import { poseNet, neuralNetwork } from "ml5";
+import * as ml5 from "../../assets/ml5.min.js";
 import { Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import { ModalComponent } from "../shared/components/modal/modal.component";
-import { userDirectory } from "../../assets/electron-config";
+
+const { poseNet, neuralNetwork } = ml5;
 
 const electron = window.require("electron");
-const sound = window.require("sound-play");
 
 @Component({
   selector: "app-collecting",
@@ -29,7 +29,8 @@ export class CollectingComponent implements OnInit, OnDestroy {
   loader: HTMLElement;
   container: HTMLElement;
   title: string;
-  timer = 16;
+  dataGatheringTimer = 2;
+  timer = this.dataGatheringTimer;
   instructionsToUser = [
     "Please sit straight, look at the monitor",
     "Please sit straight and tilt your face left and right",
@@ -60,7 +61,8 @@ export class CollectingComponent implements OnInit, OnDestroy {
 
   // this function is for stop collecting conrdinates
   stopCollectingPostures(): void {
-    sound.play(userDirectory.soundDirectory + "/notification.mp3");
+    const { ipcRenderer } = electron;
+    ipcRenderer.send("play-ding");
     this.state = "waiting";
   }
 
@@ -87,6 +89,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
         inputs: 34,
         outputs: 2,
         task: "classification",
+        downloadModelsOnSave: false,
       };
       this.brain = neuralNetwork(options);
       p.draw = this.draw.bind(this);
@@ -110,14 +113,15 @@ export class CollectingComponent implements OnInit, OnDestroy {
       },
     });
     modal.afterClosed().subscribe(() => {
-      this.brain.save();
-      const { ipcRenderer } = electron;
+      this.brain.save("model", (data) => {
+        const { ipcRenderer } = electron;
 
-      ipcRenderer.once("files-created", () => {
-        this.p5.remove();
-        this.goToHomePage();
+        ipcRenderer.once("files-created", () => {
+          this.p5.remove();
+          this.goToHomePage();
+        });
+        ipcRenderer.send("create-model-files", data);
       });
-      ipcRenderer.send("creating-models-files");
     });
   }
 
@@ -221,7 +225,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
         this.timer--;
       } else {
         this.stopCollectingPostures();
-        this.timer = 16;
+        this.timer = this.dataGatheringTimer;
         clearInterval(timeOut);
         setTimeout(() => {
           if (title === this.instructionsToUser[0]) {
@@ -235,7 +239,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
           ) {
             this.showGatheringDataModal("wrong position");
           } else {
-            this.timer = 16;
+            this.timer = this.dataGatheringTimer;
             this.trainModel();
           }
         }, 2000);

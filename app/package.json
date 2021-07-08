@@ -5,6 +5,8 @@
   "private": true,
   "dependencies": {
     "@electron/remote": "1.0.4",
-    "fs-extra": "^10.0.0"
+    "arraybuffer-to-buffer": "0.0.7",
+    "fs-extra": "^10.0.0",
+    "sound-play": "^1.1.0"
   }
 }
