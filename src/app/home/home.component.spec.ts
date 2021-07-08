@@ -4,7 +4,7 @@ import { HomeComponent } from "./home.component";
 import { TranslateModule } from "@ngx-translate/core";
 import { RouterTestingModule } from "@angular/router/testing";
 import { SharedModule } from "../shared/shared.module";
-
+jest.mock('./../../assets/ml5.min.js', ()=>(jest.fn()));
 describe("HomeComponent", () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
