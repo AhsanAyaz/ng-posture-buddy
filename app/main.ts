@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
 import * as fs from "fs-extra";
-import { userDirectory } from "../src/assets/electron-config";
+import { userDirectory } from "./config";
 import * as arrayBufferToBuffer from "arraybuffer-to-buffer";
 import * as load from 'audio-loader';
 import* as play from "audio-play";
