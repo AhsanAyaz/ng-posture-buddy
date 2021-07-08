@@ -15,6 +15,9 @@
       <div id="loader-section" *ngIf="timer === 16">
         <mat-spinner [diameter]="50"></mat-spinner>
       </div>
+      <div id="instruction-section" *ngIf="title === null">
+        <h3>Training data. Please wait...</h3>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>
