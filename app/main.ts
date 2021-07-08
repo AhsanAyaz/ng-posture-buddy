@@ -4,13 +4,14 @@ import * as url from "url";
 import * as fs from "fs-extra";
 import { userDirectory } from "./config";
 import * as arrayBufferToBuffer from "arraybuffer-to-buffer";
-import * as load from 'audio-loader';
-import* as play from "audio-play";
+import * as load from "audio-loader";
+import * as play from "audio-play";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
 
 let win: BrowserWindow = null;
+let dingSoundBuffer;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === "--serve");
 
@@ -83,6 +84,11 @@ try {
       path.join(userDirectory.soundDirectory, "notification.mp3"),
       (err) => {
         if (err) return console.error(err);
+        load(path.join(userDirectory.soundDirectory, "notification.mp3")).then(
+          (buffer) => {
+            dingSoundBuffer = buffer;
+          }
+        );
         console.log("success!");
       }
     );
@@ -106,7 +112,9 @@ try {
   });
 
   ipcMain.on("play-ding", () => {
-    load(path.join(userDirectory.soundDirectory,'notification.mp3')).then(play).catch(err => console.log(err));
+    play(dingSoundBuffer, {}, () => {
+      console.log("done playing ding sound");
+    });
   });
 
   ipcMain.on("create-model-files", (event, data) => {
