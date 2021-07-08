@@ -29,7 +29,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
   loader: HTMLElement;
   container: HTMLElement;
   title: string;
-  dataGatheringTimer = 15;
+  dataGatheringTimer = 5;
   timer = this.dataGatheringTimer;
   instructionsToUser = [
     "Please sit straight, look at the monitor",
