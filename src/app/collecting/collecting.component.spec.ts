@@ -4,6 +4,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "../shared/shared.module";
 import { CollectingComponent } from "./collecting.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+jest.mock('./../../assets/ml5.min.js', ()=>(jest.fn()));
 
 describe("CollectingComponent", () => {
   let component: CollectingComponent;
