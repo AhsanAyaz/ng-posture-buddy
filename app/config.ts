@@ -1,4 +1,8 @@
+const userDir = process.env.USERPROFILE
+  ? process.env.USERPROFILE
+  : process.env.HOME;
+
 export const userDirectory = {
-  modelDirectory: process.env.USERPROFILE + "/Downloads/ng-posture-buddy/model",
-  soundDirectory: process.env.USERPROFILE + "/Downloads/ng-posture-buddy/sound",
+  modelDirectory: userDir + "/Downloads/ng-posture-buddy/model",
+  soundDirectory: userDir + "/Downloads/ng-posture-buddy/sound",
 };

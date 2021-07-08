@@ -3,7 +3,8 @@ import * as path from "path";
 import * as url from "url";
 import * as fs from "fs-extra";
 import { userDirectory } from "./config";
-const arrayBufferToBuffer = require('arraybuffer-to-buffer');
+import * as arrayBufferToBuffer from "arraybuffer-to-buffer";
+import * as sound from "sound-play";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
@@ -65,6 +66,7 @@ try {
   // Some APIs can only be used after this event occurs.
   // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
   app.on("ready", () => {
+    console.log(process.env);
     setTimeout(createWindow, 400);
     if (!fs.existsSync(userDirectory.modelDirectory)) {
       fs.mkdirSync(userDirectory.modelDirectory, {
@@ -103,14 +105,34 @@ try {
     }
   });
 
+  ipcMain.on("play-ding", (event, arg) => {
+    sound.play(`file://${userDirectory.soundDirectory} + "/notification.mp3"`);
+  });
+
   ipcMain.on("create-model-files", (event, data) => {
     try {
+      console.log("create-model-files init");
+      console.log(userDirectory.modelDirectory);
       if (fs.readdirSync(userDirectory.modelDirectory).length !== 0) {
         fs.emptyDirSync(userDirectory.modelDirectory);
+        console.log("create-model-files models folder emptied");
       }
-      fs.outputJSONSync(`${userDirectory.modelDirectory}/model.json`, data.manifest);
-      fs.outputFile(`${userDirectory.modelDirectory}/model.weights.bin`, arrayBufferToBuffer(data.weightData));
-      fs.outputJson(`${userDirectory.modelDirectory}/model_meta.json`, data.meta);
+      console.log("data received: ", data);
+      fs.outputJSONSync(
+        `${userDirectory.modelDirectory}/model.json`,
+        data.manifest
+      );
+      console.log("manifest created");
+      fs.outputFile(
+        `${userDirectory.modelDirectory}/model.weights.bin`,
+        arrayBufferToBuffer(data.weightData)
+      );
+      console.log("weights file created");
+      fs.outputJson(
+        `${userDirectory.modelDirectory}/model_meta.json`,
+        data.meta
+      );
+      console.log("model meta json created");
       console.log("All files created, sending the files created message");
       event.reply("files-created");
     } catch (err) {

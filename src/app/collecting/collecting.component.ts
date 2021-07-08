@@ -7,7 +7,6 @@ import { ModalComponent } from "../shared/components/modal/modal.component";
 import { userDirectory } from "../constants";
 
 const electron = window.require("electron");
-const sound = window.require("sound-play");
 
 const { poseNet, neuralNetwork } = ml5;
 @Component({
@@ -30,7 +29,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
   loader: HTMLElement;
   container: HTMLElement;
   title: string;
-  dataGatheringTimer = 16;
+  dataGatheringTimer = 2;
   timer = this.dataGatheringTimer;
   instructionsToUser = [
     "Please sit straight, look at the monitor",
@@ -62,7 +61,8 @@ export class CollectingComponent implements OnInit, OnDestroy {
 
   // this function is for stop collecting conrdinates
   stopCollectingPostures(): void {
-    sound.play(userDirectory.soundDirectory + "/notification.mp3");
+    const { ipcRenderer } = electron;
+    ipcRenderer.send("play-ding");
     this.state = "waiting";
   }
 
