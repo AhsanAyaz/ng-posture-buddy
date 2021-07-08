@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       };
       this.brain = ml5.neuralNetwork(options);
       this.brain.load(
-        userDirectory + "/model.json",
+        userDirectory.modelDirectory + "/model.json",
         this.brainLoaded.bind(this)
       );
     };

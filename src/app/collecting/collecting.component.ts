@@ -4,8 +4,10 @@ import { poseNet, neuralNetwork } from "ml5";
 import { Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import { ModalComponent } from "../shared/components/modal/modal.component";
+import { userDirectory } from "../../assets/electron-config";
 
 const electron = window.require("electron");
+const sound = window.require("sound-play");
 
 @Component({
   selector: "app-collecting",
@@ -27,7 +29,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
   loader: HTMLElement;
   container: HTMLElement;
   title: string;
-  timer = 0;
+  timer = 16;
   instructionsToUser = [
     "Please sit straight, look at the monitor",
     "Please sit straight and tilt your face left and right",
@@ -58,6 +60,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
 
   // this function is for stop collecting conrdinates
   stopCollectingPostures(): void {
+    sound.play(userDirectory.soundDirectory + "/notification.mp3");
     this.state = "waiting";
   }
 
@@ -214,12 +217,12 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.title = title;
     this.collectPostures();
     const timeOut = setInterval(() => {
-      if (this.timer < 15) {
-        this.timer++;
+      if (this.timer > 1) {
+        this.timer--;
       } else {
-        this.timer = 0;
-        clearInterval(timeOut);
         this.stopCollectingPostures();
+        this.timer = 16;
+        clearInterval(timeOut);
         setTimeout(() => {
           if (title === this.instructionsToUser[0]) {
             this.processForGatheringData(this.instructionsToUser[1]);
@@ -232,7 +235,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
           ) {
             this.showGatheringDataModal("wrong position");
           } else {
-            this.timer = 0;
+            this.timer = 16;
             this.trainModel();
           }
         }, 2000);

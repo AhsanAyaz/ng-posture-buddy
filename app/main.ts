@@ -65,11 +65,24 @@ try {
   // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
   app.on("ready", () => {
     setTimeout(createWindow, 400);
-    if (!fs.existsSync(userDirectory)) {
-      fs.mkdirSync(userDirectory, {
+    if (!fs.existsSync(userDirectory.modelDirectory)) {
+      fs.mkdirSync(userDirectory.modelDirectory, {
         recursive: true,
       });
     }
+    if (!fs.existsSync(userDirectory.soundDirectory)) {
+      fs.mkdirSync(userDirectory.soundDirectory, {
+        recursive: true,
+      });
+    }
+    fs.copy(
+      "src/assets/sound/notification.mp3",
+      userDirectory.soundDirectory + "/notification.mp3",
+      (err) => {
+        if (err) return console.error(err);
+        console.log("success!");
+      }
+    );
   });
 
   // Quit when all windows are closed.
@@ -91,14 +104,14 @@ try {
 
   ipcMain.on("creating-models-files", (event) => {
     try {
-      if (fs.readdirSync(userDirectory).length !== 0) {
-        fs.emptyDirSync(userDirectory);
+      if (fs.readdirSync(userDirectory.modelDirectory).length !== 0) {
+        fs.emptyDirSync(userDirectory.modelDirectory);
       }
       setInterval(() => {
         if (
-          fs.existsSync(userDirectory + "/model.json") &&
-          fs.existsSync(userDirectory + "/model.weights.bin") &&
-          fs.existsSync(userDirectory + "/model_meta.json")
+          fs.existsSync(userDirectory.modelDirectory + "/model.json") &&
+          fs.existsSync(userDirectory.modelDirectory + "/model.weights.bin") &&
+          fs.existsSync(userDirectory.modelDirectory + "/model_meta.json")
         ) {
           event.reply("files-created", "json move successfully");
         }
