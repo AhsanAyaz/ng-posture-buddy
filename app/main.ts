@@ -4,7 +4,8 @@ import * as url from "url";
 import * as fs from "fs-extra";
 import { userDirectory } from "../src/assets/electron-config";
 import * as arrayBufferToBuffer from "arraybuffer-to-buffer";
-import * as sound from "sound-play";
+import * as load from 'audio-loader';
+import* as play from "audio-play";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
@@ -79,7 +80,7 @@ try {
     }
     fs.copy(
       "src/assets/sound/notification.mp3",
-      userDirectory.soundDirectory + "/notification.mp3",
+      path.join(userDirectory.soundDirectory, "notification.mp3"),
       (err) => {
         if (err) return console.error(err);
         console.log("success!");
@@ -105,9 +106,7 @@ try {
   });
 
   ipcMain.on("play-ding", () => {
-    console.log(`play-ding`);
-    sound.play(`${userDirectory.soundDirectory}/notification.mp3`);
-    console.log(`play-ding end`);
+    load(path.join(userDirectory.soundDirectory,'notification.mp3')).then(play).catch(err => console.log(err));
   });
 
   ipcMain.on("create-model-files", (event, data) => {

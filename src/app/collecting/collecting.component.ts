@@ -29,7 +29,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
   loader: HTMLElement;
   container: HTMLElement;
   title: string;
-  dataGatheringTimer = 2;
+  dataGatheringTimer = 15;
   timer = this.dataGatheringTimer;
   instructionsToUser = [
     "Please sit straight, look at the monitor",
@@ -107,21 +107,13 @@ export class CollectingComponent implements OnInit, OnDestroy {
 
   // This function creates the models files and then navigate to the home page
   finishedTraining(): void {
-    const modal = this.dialog.open(ModalComponent, {
-      data: {
-        message: "please save the files on Downloads/ng-posture-buddy/model",
-      },
-    });
-    modal.afterClosed().subscribe(() => {
-      this.brain.save("model", (data) => {
-        const { ipcRenderer } = electron;
-
-        ipcRenderer.once("files-created", () => {
-          this.p5.remove();
-          this.goToHomePage();
-        });
-        ipcRenderer.send("create-model-files", data);
+    this.brain.save("model", (data) => {
+      const { ipcRenderer } = electron;
+      ipcRenderer.once("files-created", () => {
+        this.p5.remove();
+        this.goToHomePage();
       });
+      ipcRenderer.send("create-model-files", data);
     });
   }
 
@@ -221,7 +213,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.title = title;
     this.collectPostures();
     const timeOut = setInterval(() => {
-      if (this.timer > 1) {
+      if (this.timer > 0) {
         this.timer--;
       } else {
         this.stopCollectingPostures();
