@@ -106,7 +106,7 @@ try {
 
   ipcMain.on("play-ding", () => {
     console.log(`play-ding`);
-    sound.play(`file://${userDirectory.soundDirectory} + "/notification.mp3"`);
+    sound.play(`${userDirectory.soundDirectory}/notification.mp3`);
     console.log(`play-ding end`);
   });
 
