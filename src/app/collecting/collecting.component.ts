@@ -4,8 +4,10 @@ import { poseNet, neuralNetwork } from "ml5";
 import { Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import { ModalComponent } from "../shared/components/modal/modal.component";
+import { userDirectory } from "../../assets/electron-config";
 
 const electron = window.require("electron");
+const sound = window.require("sound-play");
 
 @Component({
   selector: "app-collecting",
@@ -62,6 +64,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
 
   // this function is for stop collecting conrdinates
   stopCollectingPostures(): void {
+    sound.play(userDirectory.soundDirectory + "/notification.mp3");
     this.state = "waiting";
   }
 
@@ -223,9 +226,9 @@ export class CollectingComponent implements OnInit, OnDestroy {
       if (this.timer > 1) {
         this.timer--;
       } else {
+        this.stopCollectingPostures();
         this.timer = 16;
         clearInterval(timeOut);
-        this.stopCollectingPostures();
         setTimeout(() => {
           this.instructionsToUserArrayIndex++;
           if (title === this.instructionsToUser[2]) {
