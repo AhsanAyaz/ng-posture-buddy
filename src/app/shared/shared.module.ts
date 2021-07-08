@@ -31,6 +31,7 @@ import { HeaderComponent } from "./header/header.component";
     MatToolbarModule,
     MatProgressSpinnerModule,
   ],
+  entryComponents: [ModalComponent],
   exports: [
     TranslateModule,
     WebviewDirective,
