@@ -3,6 +3,7 @@ import * as path from "path";
 import * as url from "url";
 import * as fs from "fs-extra";
 import { userDirectory } from "./config";
+const arrayBufferToBuffer = require('arraybuffer-to-buffer');
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
@@ -102,22 +103,16 @@ try {
     }
   });
 
-  ipcMain.on("creating-models-files", (event) => {
-    console.log("here in creating-models-files");
+  ipcMain.on("create-model-files", (event, data) => {
     try {
       if (fs.readdirSync(userDirectory.modelDirectory).length !== 0) {
         fs.emptyDirSync(userDirectory.modelDirectory);
       }
-      setInterval(() => {
-        if (
-          fs.existsSync(userDirectory.modelDirectory + "/model.json") &&
-          fs.existsSync(userDirectory.modelDirectory + "/model.weights.bin") &&
-          fs.existsSync(userDirectory.modelDirectory + "/model_meta.json")
-        ) {
-          console.log("All files exist, sending the files created message");
-          event.reply("files-created", "json move successfully");
-        }
-      }, 2000);
+      fs.outputJSONSync(`${userDirectory.modelDirectory}/model.json`, data.manifest);
+      fs.outputFile(`${userDirectory.modelDirectory}/model.weights.bin`, arrayBufferToBuffer(data.weightData));
+      fs.outputJson(`${userDirectory.modelDirectory}/model_meta.json`, data.meta);
+      console.log("All files created, sending the files created message");
+      event.reply("files-created");
     } catch (err) {
       console.log(err);
       console.log("^ Files saving check encountered an error");

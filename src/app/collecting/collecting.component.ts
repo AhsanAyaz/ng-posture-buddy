@@ -30,7 +30,8 @@ export class CollectingComponent implements OnInit, OnDestroy {
   loader: HTMLElement;
   container: HTMLElement;
   title: string;
-  timer = 16;
+  dataGatheringTimer = 16;
+  timer = this.dataGatheringTimer;
   instructionsToUser = [
     "Please sit straight, look at the monitor",
     "Please sit straight and tilt your face left and right",
@@ -41,7 +42,6 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.loader = document.querySelector("app-loader");
     this.container = document.querySelector(".example-card");
     this.showGatheringDataModal("right position");
-    // this.trainModel();
   }
 
   ngOnDestroy(): void {
@@ -114,15 +114,14 @@ export class CollectingComponent implements OnInit, OnDestroy {
     });
     modal.afterClosed().subscribe(() => {
       this.brain.save("model", (data) => {
-        console.log("data returned", data);
-      });
-      const { ipcRenderer } = electron;
+        const { ipcRenderer } = electron;
 
-      ipcRenderer.once("files-created", () => {
-        this.p5.remove();
-        this.goToHomePage();
+        ipcRenderer.once("files-created", () => {
+          this.p5.remove();
+          this.goToHomePage();
+        });
+        ipcRenderer.send("create-model-files", data);
       });
-      ipcRenderer.send("creating-models-files");
     });
   }
 
@@ -226,7 +225,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
         this.timer--;
       } else {
         this.stopCollectingPostures();
-        this.timer = 16;
+        this.timer = this.dataGatheringTimer;
         clearInterval(timeOut);
         setTimeout(() => {
           if (title === this.instructionsToUser[0]) {
@@ -240,7 +239,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
           ) {
             this.showGatheringDataModal("wrong position");
           } else {
-            this.timer = 16;
+            this.timer = this.dataGatheringTimer;
             this.trainModel();
           }
         }, 2000);
