@@ -27,11 +27,15 @@ export class CollectingComponent implements OnInit, OnDestroy {
   loader: HTMLElement;
   container: HTMLElement;
   title: string;
-  timer = 0;
+  timer = 16;
+  instructionsToUserArrayIndex = 0;
   instructionsToUser = [
-    "Please sit straight, look at the monitor",
-    "Please sit straight and tilt your face left and right",
-    "Please sit straight and tilt your face up and down",
+    "Sit in the correct position, look at the monitor",
+    "Sit in the correct position and tilt your face left and right",
+    "Sit in the correct position and tilt your face up and down",
+    "Sit with the wrong postures, look at the monitor",
+    "Sit with the wrong postures and tilt your face left and right",
+    "Sit with the wrong postures and tilt your face up and down",
   ];
 
   ngOnInit(): void {
@@ -206,7 +210,9 @@ export class CollectingComponent implements OnInit, OnDestroy {
     });
     modal.afterClosed().subscribe(() => {
       this.container.style.display = "flex";
-      this.processForGatheringData(this.instructionsToUser[0]);
+      this.processForGatheringData(
+        this.instructionsToUser[this.instructionsToUserArrayIndex]
+      );
     });
   }
 
@@ -214,28 +220,25 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.title = title;
     this.collectPostures();
     const timeOut = setInterval(() => {
-      if (this.timer < 15) {
-        this.timer++;
+      if (this.timer > 1) {
+        this.timer--;
       } else {
-        this.timer = 0;
+        this.timer = 16;
         clearInterval(timeOut);
         this.stopCollectingPostures();
         setTimeout(() => {
-          if (title === this.instructionsToUser[0]) {
-            this.processForGatheringData(this.instructionsToUser[1]);
-          } else if (title === this.instructionsToUser[1]) {
-            this.processForGatheringData(this.instructionsToUser[2]);
-          } else if (
-            (title =
-              this.instructionsToUser[1] &&
-              this.postureLabel === "right position")
-          ) {
+          this.instructionsToUserArrayIndex++;
+          if (title === this.instructionsToUser[2]) {
             this.showGatheringDataModal("wrong position");
-          } else {
-            this.timer = 0;
+          } else if (title === this.instructionsToUser[5]) {
+            this.title = null;
             this.trainModel();
+          } else {
+            this.processForGatheringData(
+              this.instructionsToUser[this.instructionsToUserArrayIndex]
+            );
           }
-        }, 2000);
+        }, 1000);
       }
     }, 1000);
   }
