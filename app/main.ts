@@ -2,12 +2,16 @@ import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
 import * as fs from "fs-extra";
-import { userDirectory } from "../src/assets/electron-config";
+import { userDirectory } from "./config";
+import * as arrayBufferToBuffer from "arraybuffer-to-buffer";
+import * as load from "audio-loader";
+import * as play from "audio-play";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
 
 let win: BrowserWindow = null;
+let dingSoundBuffer;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === "--serve");
 
@@ -77,10 +81,17 @@ try {
     }
     fs.copy(
       "src/assets/sound/notification.mp3",
-      userDirectory.soundDirectory + "/notification.mp3",
+      path.join(userDirectory.soundDirectory, "notification.mp3"),
       (err) => {
-        if (err) return console.error(err);
-        console.log("success!");
+        if (err) {
+          console.error(err);
+        }
+        load(path.join(userDirectory.soundDirectory, "notification.mp3")).then(
+          (buffer) => {
+            dingSoundBuffer = buffer;
+            console.log("success!");
+          }
+        ).catch(err => console.error(err));
       }
     );
   });
@@ -102,25 +113,44 @@ try {
     }
   });
 
-  ipcMain.on("creating-models-files", (event) => {
+  ipcMain.on("play-ding", () => {
+    play(dingSoundBuffer, {}, () => {
+      console.log("done playing ding sound");
+    });
+  });
+
+  ipcMain.on("create-model-files", (event, data) => {
     try {
+      console.log("create-model-files init");
+      console.log(userDirectory.modelDirectory);
       if (fs.readdirSync(userDirectory.modelDirectory).length !== 0) {
         fs.emptyDirSync(userDirectory.modelDirectory);
+        console.log("create-model-files models folder emptied");
       }
-      setInterval(() => {
-        if (
-          fs.existsSync(userDirectory.modelDirectory + "/model.json") &&
-          fs.existsSync(userDirectory.modelDirectory + "/model.weights.bin") &&
-          fs.existsSync(userDirectory.modelDirectory + "/model_meta.json")
-        ) {
-          event.reply("files-created", "json move successfully");
-        }
-      }, 2000);
+      console.log("data received: ", data);
+      fs.outputJSONSync(
+        `${userDirectory.modelDirectory}/model.json`,
+        data.manifest
+      );
+      console.log("manifest created");
+      fs.outputFile(
+        `${userDirectory.modelDirectory}/model.weights.bin`,
+        arrayBufferToBuffer(data.weightData)
+      );
+      console.log("weights file created");
+      fs.outputJson(
+        `${userDirectory.modelDirectory}/model_meta.json`,
+        data.meta
+      );
+      console.log("model meta json created");
+      console.log("All files created, sending the files created message");
+      event.reply("files-created");
     } catch (err) {
       console.log(err);
+      console.log("^ Files saving check encountered an error");
     }
   });
 } catch (e) {
-  // Catch Error
-  // throw e;
+  console.log("Something happened in the main block");
+  console.log(e);
 }

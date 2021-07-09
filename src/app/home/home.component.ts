@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit } from "@angular/core";
 import p5 from "p5";
-import ml5 from "ml5";
+import * as ml5 from "../../assets/ml5.min.js";
 import { userDirectory } from "../../assets/electron-config";
 
 @Component({
@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       };
       this.brain = ml5.neuralNetwork(options);
       this.brain.load(
-        userDirectory.modelDirectory + "/model.json",
+        `file://${userDirectory.modelDirectory}/model.json`,
         this.brainLoaded.bind(this)
       );
     };
