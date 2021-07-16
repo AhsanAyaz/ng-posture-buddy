@@ -21,15 +21,24 @@
   background-color: #ddd;
   border-radius: 6px;
   margin-top: 6px;
+  position: relative;
+  text-align: center;
+  height: 30px;
+  line-height: 30px;
 }
 
 .bar {
   width: 10%;
   height: 30px;
-  text-align: center;
-  line-height: 30px;
   color: white;
   border-radius: 6px;
+  transition: all ease 0.2s;
+  position: absolute;
+}
+
+.progress-bar span {
+  position: absolute;
+  color: white;
 }
 
 #label1 {
