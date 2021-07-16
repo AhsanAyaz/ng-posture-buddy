@@ -21,10 +21,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
   poseNet: any;
   pose: any;
   brain: any;
-  rightPosture: number;
-  wrongPosture: number;
-  rightPostureValue: number;
-  wrongPostureValue: number;
+  correctPosture: number;
+  incorrectPosture: number;
+  correctPostureValue: number;
+  incorrectPostureValue: number;
   postures: any;
   notificationTimer = null;
   positionCorrectedTimer = null;
@@ -130,6 +130,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const label2: HTMLElement = document.querySelector("#label2");
     const bar1: HTMLElement = document.querySelector("#bar1");
     const bar2: HTMLElement = document.querySelector("#bar2");
+    const val1: HTMLElement = document.querySelector("#barPercent1");
+    const val2: HTMLElement = document.querySelector("#barPercent2");
 
     this.p5.pop();
 
@@ -140,23 +142,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
           label: string;
           confidence: { toFixed: (arg0: number) => number };
         }) => {
-          if (data.label === "right position") {
-            // if data.label value is equal to right-position it will set the right position fields
-            this.rightPosture = data.confidence.toFixed(2) * 100;
+          if (data.label === "Correct posture") {
+            // if data.label value is equal to correct posture it will set the Correct posture fields
+            this.correctPosture = data.confidence.toFixed(2) * 100;
             label1.innerText = data.label + ": ";
           } else {
-            // if data.label value is equal to wrong-position it will set the wrong position fields
-            this.wrongPosture = data.confidence.toFixed(2) * 100;
+            // if data.label value is equal to incorrect posture it will set the Incorrect posture fields
+            this.incorrectPosture = data.confidence.toFixed(2) * 100;
             label2.innerText = data.label + ": ";
           }
         }
       );
-      if (this.rightPostureValue < this.wrongPostureValue) {
+      if (this.correctPostureValue < this.incorrectPostureValue) {
         if (this.positionCorrectedTimer) {
-          // If the positionCorrectedTimer is set but user change the position in wrong posture it will clear the positionCorrectedTimer
+          // If the positionCorrectedTimer is set but user change the position in incorrect posture it will clear the positionCorrectedTimer
           this.positionCorrectedClearTimer();
         }
-        // If the wrong posture is greater than right posture about 1 minute it will show the notification to correct your position
+        // If the incorrect posture is greater than correct posture about 1 minute it will show the notification to correct your position
         if (!this.notificationTimer) {
           // If the notificationTimer  is empty this code will execute
           this.notificationTimer = setTimeout(() => {
@@ -170,25 +172,25 @@ export class HomeComponent implements OnInit, AfterViewInit {
           }, 60000);
         }
       } else {
-        // if the right position is greate than wrong position this code will execute
+        // if the Correct posture is greate than Incorrect posture this code will execute
         if (this.notificationTimer) {
           // If the notificationTimer  is empty this code will execute
           if (!this.positionCorrectedTimer) {
             // If the positionCorrectedTimer is empty this code will execute
             this.positionCorrectedTimer = setTimeout(() => {
-              // This setTimeOut is execute after 15 seconds if the user stil in right position
+              // This setTimeOut is execute after 15 seconds if the user stil in Correct posture
               this.notificationClearTimer();
               this.positionCorrectedClearTimer();
             }, 15000);
           }
         }
       }
-      this.rightPostureValue = Math.floor(this.rightPosture);
-      this.wrongPostureValue = Math.floor(this.wrongPosture);
-      bar1.innerText = `${this.rightPostureValue}%`;
-      bar2.innerText = `${this.wrongPostureValue}%`;
-      bar1.style.width = `${this.rightPostureValue}%`;
-      bar2.style.width = `${this.wrongPostureValue}%`;
+      this.correctPostureValue = Math.floor(this.correctPosture);
+      this.incorrectPostureValue = Math.floor(this.incorrectPosture);
+      val1.innerText = `${this.correctPostureValue}%`;
+      val2.innerText = `${this.incorrectPostureValue}%`;
+      bar1.style.width = `${this.correctPostureValue}%`;
+      bar2.style.width = `${this.incorrectPostureValue}%`;
     }
   }
 }

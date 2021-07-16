@@ -8,11 +8,11 @@
   >
     <div id="webcam-container"></div>
     <mat-card-content>
-      <div id="instruction-section" *ngIf="timer < 16">
+      <div id="instruction-section" *ngIf="timer < 5">
         <h3>{{ title }}</h3>
         <h2>{{ timer }}</h2>
       </div>
-      <div id="loader-section" *ngIf="timer === 16">
+      <div id="loader-section" *ngIf="timer === 5">
         <mat-spinner [diameter]="50"></mat-spinner>
       </div>
       <div id="instruction-section" *ngIf="title === null">

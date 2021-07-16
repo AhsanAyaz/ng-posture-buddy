@@ -44,7 +44,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loader = document.querySelector("app-loader");
     this.container = document.querySelector(".example-card");
-    this.showGatheringDataModal("right position");
+    this.showGatheringDataModal("Correct posture");
   }
 
   ngOnDestroy(): void {
@@ -173,36 +173,36 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.p5.scale(-1, 1);
     this.p5.image(this.video, 0, 0, this.video.width, this.video.height);
 
-    if (this.pose) {
-      for (let i = 0; i < this.skeleton.length; i++) {
-        const a = this.skeleton[i][0];
-        const b = this.skeleton[i][1];
-        this.p5.strokeWeight(2);
-        this.p5.stroke(0);
+    // if (this.pose) {
+    //   for (let i = 0; i < this.skeleton.length; i++) {
+    //     const a = this.skeleton[i][0];
+    //     const b = this.skeleton[i][1];
+    //     this.p5.strokeWeight(2);
+    //     this.p5.stroke(0);
 
-        this.p5.line(a.position.x, a.position.y, b.position.x, b.position.y);
-      }
-      for (let i = 0; i < this.pose.keypoints.length; i++) {
-        const x = this.pose.keypoints[i].position.x;
-        const y = this.pose.keypoints[i].position.y;
-        this.p5.fill(0);
-        this.p5.stroke(255);
-        this.p5.ellipse(x, y, 16, 16);
-      }
-    }
+    //     this.p5.line(a.position.x, a.position.y, b.position.x, b.position.y);
+    //   }
+    //   for (let i = 0; i < this.pose.keypoints.length; i++) {
+    //     const x = this.pose.keypoints[i].position.x;
+    //     const y = this.pose.keypoints[i].position.y;
+    //     this.p5.fill(0);
+    //     this.p5.stroke(255);
+    //     this.p5.ellipse(x, y, 16, 16);
+    //   }
+    // }
     this.p5.pop();
   }
 
   showGatheringDataModal(posture) {
     this.postureLabel = posture;
-    if (this.postureLabel === "right position") {
+    if (this.postureLabel === "Correct posture") {
       this.createCanvas();
     }
     const modal = this.dialog.open(ModalComponent, {
       hasBackdrop: false,
       data: {
         message:
-          this.postureLabel === "right position"
+          this.postureLabel === "Correct posture"
             ? "We're now gathering data for the Correct Posture"
             : "We're now gathering data for the Incorrect Posture",
       },
@@ -228,7 +228,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.instructionsToUserArrayIndex++;
           if (title === this.instructionsToUser[2]) {
-            this.showGatheringDataModal("wrong position");
+            this.showGatheringDataModal("Incorrect posture");
           } else if (title === this.instructionsToUser[5]) {
             this.title = null;
             this.trainModel();
