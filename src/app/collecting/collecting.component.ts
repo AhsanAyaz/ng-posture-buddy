@@ -57,19 +57,6 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.p5 = new p5(this.setup.bind(this));
   }
 
-  // this function for collect conrdinates and also set posture values
-  collectPostures(): void {
-    this.position = this.postureLabel;
-    this.state = "collecting";
-  }
-
-  // this function is for stop collecting conrdinates
-  stopCollectingPostures(): void {
-    const { ipcRenderer } = electron;
-    ipcRenderer.send("play-ding");
-    this.state = "waiting";
-  }
-
   // This is a main function which create canvas for webcam and it also use the ml5 functions
   setup(p: any): void {
     p.setup = () => {
@@ -98,6 +85,48 @@ export class CollectingComponent implements OnInit, OnDestroy {
       this.brain = neuralNetwork(options);
       p.draw = this.draw.bind(this);
     };
+  }
+
+  // this function for collect conrdinates and also set posture values
+  collectPostures(): void {
+    this.position = this.postureLabel;
+    this.state = "collecting";
+  }
+
+  // this function is for stop collecting conrdinates
+  stopCollectingPostures(): void {
+    const { ipcRenderer } = electron;
+    ipcRenderer.send("play-ding");
+    this.state = "waiting";
+  }
+
+  // this function show the postures instructions with 15 seconds timer and perform the action after timer complete
+  processForGatheringData(title) {
+    this.title = title;
+    this.collectPostures();
+    const timeOut = setInterval(() => {
+      if (this.timer > 0) {
+        this.timer--;
+      } else {
+        this.stopCollectingPostures();
+        this.timer = this.dataGatheringTimer;
+        clearInterval(timeOut);
+        setTimeout(() => {
+          this.instructionsToUserArrayIndex++;
+          if (title === this.instructionsToUser[2]) {
+            this.showGatheringDataModal("Incorrect posture");
+          } else if (title === this.instructionsToUser[5]) {
+            this.title = null;
+            this.trainModel();
+          } else {
+            this.timer = this.dataGatheringTimer;
+            this.processForGatheringData(
+              this.instructionsToUser[this.instructionsToUserArrayIndex]
+            );
+          }
+        }, 1000);
+      }
+    }, 1000);
   }
 
   // This function is to train the json data
@@ -172,27 +201,10 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.p5.translate(this.video.width, 0);
     this.p5.scale(-1, 1);
     this.p5.image(this.video, 0, 0, this.video.width, this.video.height);
-
-    // if (this.pose) {
-    //   for (let i = 0; i < this.skeleton.length; i++) {
-    //     const a = this.skeleton[i][0];
-    //     const b = this.skeleton[i][1];
-    //     this.p5.strokeWeight(2);
-    //     this.p5.stroke(0);
-
-    //     this.p5.line(a.position.x, a.position.y, b.position.x, b.position.y);
-    //   }
-    //   for (let i = 0; i < this.pose.keypoints.length; i++) {
-    //     const x = this.pose.keypoints[i].position.x;
-    //     const y = this.pose.keypoints[i].position.y;
-    //     this.p5.fill(0);
-    //     this.p5.stroke(255);
-    //     this.p5.ellipse(x, y, 16, 16);
-    //   }
-    // }
     this.p5.pop();
   }
 
+  // this function show the modal to user to sit correct or incorrect position
   showGatheringDataModal(posture) {
     this.postureLabel = posture;
     if (this.postureLabel === "Correct posture") {
@@ -213,33 +225,5 @@ export class CollectingComponent implements OnInit, OnDestroy {
         this.instructionsToUser[this.instructionsToUserArrayIndex]
       );
     });
-  }
-
-  processForGatheringData(title) {
-    this.title = title;
-    this.collectPostures();
-    const timeOut = setInterval(() => {
-      if (this.timer > 0) {
-        this.timer--;
-      } else {
-        this.stopCollectingPostures();
-        this.timer = this.dataGatheringTimer;
-        clearInterval(timeOut);
-        setTimeout(() => {
-          this.instructionsToUserArrayIndex++;
-          if (title === this.instructionsToUser[2]) {
-            this.showGatheringDataModal("Incorrect posture");
-          } else if (title === this.instructionsToUser[5]) {
-            this.title = null;
-            this.trainModel();
-          } else {
-            this.timer = this.dataGatheringTimer;
-            this.processForGatheringData(
-              this.instructionsToUser[this.instructionsToUserArrayIndex]
-            );
-          }
-        }, 1000);
-      }
-    }, 1000);
   }
 }
