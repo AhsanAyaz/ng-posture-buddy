@@ -1,3 +1,10 @@
-<mat-toolbar color="primary">
+<mat-toolbar class="toolbar" color="primary">
   <h1>Posture Buddy</h1>
+  <button
+    mat-button
+    *ngIf="router.url == '/home'"
+    (click)="goToCollectingPage()"
+  >
+    Retrain
+  </button>
 </mat-toolbar>

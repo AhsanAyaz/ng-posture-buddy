@@ -42,14 +42,21 @@ export class CollectingComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    this.loader = document.querySelector("app-loader");
-    this.container = document.querySelector(".example-card");
-    this.showGatheringDataModal("Correct posture");
+    const modalFiles = localStorage.getItem("modal-files");
+    if (modalFiles) {
+      this.router.navigate(["/home"]);
+    } else {
+      this.loader = document.querySelector("app-loader");
+      this.container = document.querySelector(".example-card");
+      this.showGatheringDataModal("Correct posture");
+    }
   }
 
   ngOnDestroy(): void {
-    this.p5.remove();
-    this.video.remove();
+    if (this.p5 && this.video) {
+      this.p5.remove();
+      this.video.remove();
+    }
   }
 
   // This function is called from inIt() and this function calls the main setup() function
@@ -144,6 +151,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
       const { ipcRenderer } = electron;
       ipcRenderer.once("files-created", () => {
         this.p5.remove();
+        localStorage.setItem("modal-files", "modal-files-created");
         this.goToHomePage();
       });
       ipcRenderer.send("create-model-files", data);
