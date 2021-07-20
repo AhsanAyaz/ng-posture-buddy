@@ -135,7 +135,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
     this.p5.pop();
 
-    if (this.postures) {
+    if (this.postures && label1) {
       // if postures are not empty then it will execute and looping the postures varaible
       this.postures.map(
         (data: {
