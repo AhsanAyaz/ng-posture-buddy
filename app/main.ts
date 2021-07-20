@@ -2,15 +2,17 @@ import { app, BrowserWindow, ipcMain, screen } from "electron";
 import * as path from "path";
 import * as url from "url";
 import * as fs from "fs-extra";
-import { userDirectory } from "./config";
+import { soundSourceDirectory, SOUND_FILE_NAME, userDirectory } from "./config";
 import * as arrayBufferToBuffer from "arraybuffer-to-buffer";
 import * as load from "audio-loader";
 import * as play from "audio-play";
+import getLogger from "./logger";
 
 // Initialize remote module
 require("@electron/remote/main").initialize();
 
 let win: BrowserWindow = null;
+const logger = getLogger();
 let dingSoundBuffer;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === "--serve");
@@ -69,31 +71,60 @@ try {
   // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
   app.on("ready", () => {
     setTimeout(createWindow, 400);
-    if (!fs.existsSync(userDirectory.modelDirectory)) {
-      fs.mkdirSync(userDirectory.modelDirectory, {
-        recursive: true,
-      });
-    }
-    if (!fs.existsSync(userDirectory.soundDirectory)) {
-      fs.mkdirSync(userDirectory.soundDirectory, {
-        recursive: true,
-      });
-    }
-    fs.copy(
-      "src/assets/sound/notification.mp3",
-      path.join(userDirectory.soundDirectory, "notification.mp3"),
-      (err) => {
-        if (err) {
-          console.error(err);
-        }
-        load(path.join(userDirectory.soundDirectory, "notification.mp3")).then(
-          (buffer) => {
-            dingSoundBuffer = buffer;
-            console.log("success!");
-          }
-        ).catch(err => console.error(err));
-      }
+    logger.info("App Ready", "Model Directory " + userDirectory.modelDirectory);
+    logger.info(
+      "App Ready",
+      "Sounds Directory " + userDirectory.soundDirectory
     );
+    logger.info("App Ready", "Logs Directory " + userDirectory.logsDirectory);
+    try {
+      if (!fs.existsSync(userDirectory.modelDirectory)) {
+        logger.info(
+          "App Ready",
+          "Creating model directory at " + userDirectory.modelDirectory
+        );
+        fs.mkdirSync(userDirectory.modelDirectory, {
+          recursive: true,
+        });
+      }
+      if (!fs.existsSync(userDirectory.logsDirectory)) {
+        logger.info(
+          "App Ready",
+          "Creating logs directory at " + userDirectory.logsDirectory
+        );
+        fs.mkdirSync(userDirectory.logsDirectory, {
+          recursive: true,
+        });
+      }
+      if (!fs.existsSync(userDirectory.soundDirectory)) {
+        logger.info(
+          "App Ready",
+          "Creating sound directory at " + userDirectory.soundDirectory
+        );
+        fs.mkdirSync(userDirectory.soundDirectory, {
+          recursive: true,
+        });
+      }
+      fs.copy(
+        soundSourceDirectory,
+        path.join(userDirectory.soundDirectory, SOUND_FILE_NAME),
+        (err) => {
+          if (err) {
+            logger.error("App Ready", "error in copying", err);
+          }
+          load(path.join(userDirectory.soundDirectory, SOUND_FILE_NAME))
+            .then((buffer) => {
+              dingSoundBuffer = buffer;
+              logger.info("App Ready", "sound buffer initated");
+            })
+            .catch((err) =>
+              logger.error("App Ready", "error in loading sound to buffer", err)
+            );
+        }
+      );
+    } catch (err) {
+      logger.error("Error in app init electron thread", err.toString());
+    }
   });
 
   // Quit when all windows are closed.
@@ -115,42 +146,47 @@ try {
 
   ipcMain.on("play-ding", () => {
     play(dingSoundBuffer, {}, () => {
-      console.log("done playing ding sound");
+      logger.info("play-ding", "done playing ding sound");
     });
   });
 
   ipcMain.on("create-model-files", (event, data) => {
     try {
-      console.log("create-model-files init");
-      console.log(userDirectory.modelDirectory);
+      logger.info("create-model-files", "init");
       if (fs.readdirSync(userDirectory.modelDirectory).length !== 0) {
         fs.emptyDirSync(userDirectory.modelDirectory);
-        console.log("create-model-files models folder emptied");
+        logger.info("create-model-files", "Models folder emptied");
       }
-      console.log("data received: ", data);
+      logger.info("create-model-files", "data received", data);
       fs.outputJSONSync(
         `${userDirectory.modelDirectory}/model.json`,
         data.manifest
       );
-      console.log("manifest created");
+      logger.info("create-model-files", "manifest created");
       fs.outputFile(
         `${userDirectory.modelDirectory}/model.weights.bin`,
         arrayBufferToBuffer(data.weightData)
       );
-      console.log("weights file created");
+      logger.info("create-model-files", "weights file created");
       fs.outputJson(
         `${userDirectory.modelDirectory}/model_meta.json`,
         data.meta
       );
-      console.log("model meta json created");
-      console.log("All files created, sending the files created message");
+      logger.info("create-model-files", "model meta json created");
+      logger.info(
+        "create-model-files",
+        "All files created, replying with the files created message"
+      );
       event.reply("files-created");
     } catch (err) {
-      console.log(err);
-      console.log("^ Files saving check encountered an error");
+      logger.error("create-model-files", err);
+      logger.info(
+        "create-model-files",
+        "Files saving check encountered an error"
+      );
     }
   });
 } catch (e) {
-  console.log("Something happened in the main block");
-  console.log(e);
+  logger.error("Main thread", "Something happened in the main block");
+  logger.error("Main thread", e);
 }
