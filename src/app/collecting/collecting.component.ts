@@ -4,6 +4,7 @@ import * as ml5 from "../../assets/ml5.min.js";
 import { Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import { ModalComponent } from "../shared/components/modal/modal.component";
+import Speech from "speak-tts";
 
 const { poseNet, neuralNetwork } = ml5;
 
@@ -32,6 +33,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
   instructionsToUserArrayIndex = 0;
   dataGatheringTimer = 5;
   timer = this.dataGatheringTimer;
+  speech: Speech;
   instructionsToUser = [
     "Sit in the correct position, look at the monitor",
     "Sit in the correct position and tilt your face left and right",
@@ -43,6 +45,16 @@ export class CollectingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const modalFiles = localStorage.getItem("modal-files");
+    this.speech = new Speech();
+    this.speech
+      .init()
+      .then((data) => {
+        // The "data" object contains the list of available voices and the voice synthesis params
+        console.log("Speech is ready, voices are available", data);
+      })
+      .catch((e) => {
+        console.error("An error occured while initializing : ", e);
+      });
     if (modalFiles) {
       this.router.navigate(["/home"]);
     } else {
@@ -127,9 +139,16 @@ export class CollectingComponent implements OnInit, OnDestroy {
             this.trainModel();
           } else {
             this.timer = this.dataGatheringTimer;
-            this.processForGatheringData(
-              this.instructionsToUser[this.instructionsToUserArrayIndex]
-            );
+            this.speech.speak({
+              text: this.instructionsToUser[this.instructionsToUserArrayIndex],
+              listeners: {
+                onend: () => {
+                  this.processForGatheringData(
+                    this.instructionsToUser[this.instructionsToUserArrayIndex]
+                  );
+                },
+              },
+            });
           }
         }, 1000);
       }
@@ -227,11 +246,18 @@ export class CollectingComponent implements OnInit, OnDestroy {
             : "We're now gathering data for the Incorrect Posture",
       },
     });
-    modal.afterClosed().subscribe(() => {
+    modal.afterClosed().subscribe(async () => {
       this.container.style.display = "flex";
-      this.processForGatheringData(
-        this.instructionsToUser[this.instructionsToUserArrayIndex]
-      );
+      this.speech.speak({
+        text: this.instructionsToUser[this.instructionsToUserArrayIndex],
+        listeners: {
+          onend: () => {
+            this.processForGatheringData(
+              this.instructionsToUser[this.instructionsToUserArrayIndex]
+            );
+          },
+        },
+      });
     });
   }
 }
