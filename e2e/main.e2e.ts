@@ -3,7 +3,7 @@ import { SpectronClient } from "spectron";
 
 import commonSetup from "./common-setup";
 
-describe("ng-posture-buddy App", function () {
+describe("posture-buddy App", function () {
   commonSetup.apply(this);
 
   let client: SpectronClient;

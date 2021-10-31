@@ -5,9 +5,9 @@ const userDir = process.env.USERPROFILE
 const isProduction = process.env.NODE_ENV !== "production";
 
 export const userDirectory = {
-  modelDirectory: userDir + "/Downloads/ng-posture-buddy/model",
-  soundDirectory: userDir + "/Downloads/ng-posture-buddy/sound",
-  logsDirectory: userDir + "/Downloads/ng-posture-buddy/logs",
+  modelDirectory: userDir + "/Downloads/posture-buddy/model",
+  soundDirectory: userDir + "/Downloads/posture-buddy/sound",
+  logsDirectory: userDir + "/Downloads/posture-buddy/logs",
 };
 
 export const SOUND_FILE_NAME = "notification.mp3";

@@ -37,7 +37,7 @@ With this sample, you can:
 Clone this repository locally:
 
 ```bash
-git clone https://github.com/ahsanayaz/ng-posture-buddy.git
+git clone https://github.com/ahsanayaz/posture-buddy.git
 ```
 
 Install dependencies with npm:
@@ -131,19 +131,19 @@ Finally from VsCode press **Ctrl+Shift+D** and select **Application Debug** and 
 Please note that Hot reload is only available in Renderer process.
 
 [maintained-badge]: https://img.shields.io/badge/maintained-yes-brightgreen
-[license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
-[license]: https://github.com/ahsanayaz/ng-posture-buddy/blob/master/LICENSE.md
+[license-badge]: https://img.shields.io/badge/License-GPLv3-blue.svg
+[license]: https://github.com/ahsanayaz/posture-buddy/blob/master/LICENSE.md
 [prs-badge]: https://img.shields.io/badge/PRs-welcome-red.svg
 [prs]: http://makeapullrequest.com
-[linux-build-badge]: https://github.com/ahsanayaz/ng-posture-buddy/workflows/Linux%20Build/badge.svg
-[linux-build]: https://github.com/ahsanayaz/ng-posture-buddy/actions?query=workflow%3A%22Linux+Build%22
-[macos-build-badge]: https://github.com/ahsanayaz/ng-posture-buddy/workflows/MacOS%20Build/badge.svg
-[macos-build]: https://github.com/ahsanayaz/ng-posture-buddy/actions?query=workflow%3A%22MacOS+Build%22
-[windows-build-badge]: https://github.com/ahsanayaz/ng-posture-buddy/workflows/Windows%20Build/badge.svg
-[windows-build]: https://github.com/ahsanayaz/ng-posture-buddy/actions?query=workflow%3A%22Windows+Build%22
-[github-watch-badge]: https://img.shields.io/github/watchers/ahsanayaz/ng-posture-buddy.svg?style=social
-[github-watch]: https://github.com/ahsanayaz/ng-posture-buddy/watchers
-[github-star-badge]: https://img.shields.io/github/stars/ahsanayaz/ng-posture-buddy.svg?style=social
-[github-star]: https://github.com/ahsanayaz/ng-posture-buddy/stargazers
-[twitter]: https://twitter.com/intent/tweet?text=Check%20out%20ng-posture-buddy!%20https://github.com/ahsanayaz/ng-posture-buddy%20%F0%9F%91%8D
-[twitter-badge]: https://img.shields.io/twitter/url/https/github.com/ahsanayaz/ng-posture-buddy.svg?style=social
+[linux-build-badge]: https://github.com/ahsanayaz/posture-buddy/workflows/Linux%20Build/badge.svg
+[linux-build]: https://github.com/ahsanayaz/posture-buddy/actions?query=workflow%3A%22Linux+Build%22
+[macos-build-badge]: https://github.com/ahsanayaz/posture-buddy/workflows/MacOS%20Build/badge.svg
+[macos-build]: https://github.com/ahsanayaz/posture-buddy/actions?query=workflow%3A%22MacOS+Build%22
+[windows-build-badge]: https://github.com/ahsanayaz/posture-buddy/workflows/Windows%20Build/badge.svg
+[windows-build]: https://github.com/ahsanayaz/posture-buddy/actions?query=workflow%3A%22Windows+Build%22
+[github-watch-badge]: https://img.shields.io/github/watchers/ahsanayaz/posture-buddy.svg?style=social
+[github-watch]: https://github.com/ahsanayaz/posture-buddy/watchers
+[github-star-badge]: https://img.shields.io/github/stars/ahsanayaz/posture-buddy.svg?style=social
+[github-star]: https://github.com/ahsanayaz/posture-buddy/stargazers
+[twitter]: https://twitter.com/intent/tweet?text=Check%20out%20posture-buddy!%20https://github.com/ahsanayaz/posture-buddy%20%F0%9F%91%8D
+[twitter-badge]: https://img.shields.io/twitter/url/https/github.com/ahsanayaz/posture-buddy.svg?style=social

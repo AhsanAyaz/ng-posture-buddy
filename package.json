@@ -1,8 +1,8 @@
 {
-  "name": "ng-posture-buddy",
+  "name": "posture-buddy",
   "version": "10.0.0",
   "description": "Angular 12 with Electron (Typescript + SASS + Hot Reload)",
-  "homepage": "https://github.com/ahsanayaz/ng-posture-buddy",
+  "homepage": "https://github.com/ahsanayaz/posture-buddy",
   "author": {
     "name": "Maxime GRIS",
     "email": "maxime.gris@gmail.com"

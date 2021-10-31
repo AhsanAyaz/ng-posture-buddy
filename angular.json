@@ -6,7 +6,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ng-posture-buddy": {
+    "posture-buddy": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -83,24 +83,24 @@
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "ng-posture-buddy:build"
+            "browserTarget": "posture-buddy:build"
           },
           "configurations": {
             "dev": {
-              "browserTarget": "ng-posture-buddy:build:dev"
+              "browserTarget": "posture-buddy:build:dev"
             },
             "web": {
-              "browserTarget": "ng-posture-buddy:build:web"
+              "browserTarget": "posture-buddy:build:web"
             },
             "production": {
-              "browserTarget": "ng-posture-buddy:build:production"
+              "browserTarget": "posture-buddy:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ng-posture-buddy:build"
+            "browserTarget": "posture-buddy:build"
           }
         },
         "test": {
@@ -120,7 +120,7 @@
         }
       }
     },
-    "ng-posture-buddy-e2e": {
+    "posture-buddy-e2e": {
       "root": "e2e",
       "projectType": "application",
       "architect": {
@@ -134,7 +134,7 @@
       }
     }
   },
-  "defaultProject": "ng-posture-buddy",
+  "defaultProject": "posture-buddy",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",
