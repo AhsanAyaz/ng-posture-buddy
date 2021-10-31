@@ -12,6 +12,12 @@
 [![Star on GitHub][github-star-badge]][github-star]
 [![Tweet][twitter-badge]][twitter]
 
+# Posture Buddy
+
+Posture Buddy is an app that helps you sit straight when working at your workplace or home.
+It uses the camera & machine learning to identify if you sit with a bad posture for too long.
+No data is recorded or stored anywhere but on your machine.
+
 # Introduction
 
 Bootstrap and package your project with Angular 12 and Electron 13 (Typescript + SASS + Hot Reload) for creating Desktop applications.
