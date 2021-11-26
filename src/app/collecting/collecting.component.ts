@@ -18,7 +18,7 @@ const electron = window.require("electron");
 export class CollectingComponent implements OnInit, OnDestroy {
   private p5;
   constructor(private router: Router, public dialog: MatDialog) {}
-
+  isDemo = true;
   video: any;
   poseNet: any;
   pose: any;
@@ -58,6 +58,10 @@ export class CollectingComponent implements OnInit, OnDestroy {
     if (modalFiles) {
       this.router.navigate(["/home"]);
     } else {
+      if (this.isDemo) {
+        this.createCanvas();
+        return;
+      }
       this.loader = document.querySelector("app-loader");
       this.container = document.querySelector(".example-card");
       this.showGatheringDataModal("Correct posture");
@@ -221,13 +225,37 @@ export class CollectingComponent implements OnInit, OnDestroy {
       }
     }
   }
-
+  test = 0;
   // This function set the width and height of webcam view, it also process and show the positions with percentage according to the cordinates
   draw(): void {
     this.p5.push();
     this.p5.translate(this.video.width, 0);
     this.p5.scale(-1, 1);
     this.p5.image(this.video, 0, 0, this.video.width, this.video.height);
+    if (this.pose) {
+      if (this.test++ == 0) {
+        console.log(this.pose);
+      }
+      this.p5.fill(164, 52, 235);
+      this.p5.stroke(164, 52, 235);
+      this.p5.strokeWeight(2);
+      [
+        this.pose.nose,
+        this.pose.leftShoulder,
+        this.pose.rightShoulder,
+        this.pose.leftEye,
+        this.pose.rightEye,
+      ].map((point) => {
+        this.p5.ellipse(point.x, point.y, 15);
+      });
+      const { leftShoulder, rightShoulder } = this.pose;
+      this.p5.line(
+        leftShoulder.x,
+        leftShoulder.y,
+        rightShoulder.x,
+        rightShoulder.y
+      );
+    }
     this.p5.pop();
   }
 
