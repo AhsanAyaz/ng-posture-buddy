@@ -145,9 +145,9 @@ try {
   });
 
   ipcMain.on("play-ding", () => {
-    play(dingSoundBuffer, {}, () => {
-      logger.info("play-ding", "done playing ding sound");
-    });
+    // play(dingSoundBuffer, {}, () => {
+    //   logger.info("play-ding", "done playing ding sound");
+    // });
   });
 
   ipcMain.on("create-model-files", (event, data) => {

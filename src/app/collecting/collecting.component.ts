@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import p5 from "p5";
 import * as ml5 from "../../assets/ml5.min.js";
 import { Router } from "@angular/router";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { ModalComponent } from "../shared/components/modal/modal.component";
 import Speech from "speak-tts";
 
@@ -34,6 +34,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
   dataGatheringTimer = 5;
   timer = this.dataGatheringTimer;
   speech: Speech;
+  modalRef!: MatDialogRef<ModalComponent>;
   instructionsToUser = [
     "Sit in the correct position, look at the monitor",
     "Sit in the correct position and tilt your face left and right",
@@ -68,10 +69,19 @@ export class CollectingComponent implements OnInit, OnDestroy {
     }
   }
 
+  setDemo() {
+    this.isDemo = !this.isDemo;
+    this.ngOnDestroy();
+    this.ngOnInit();
+  }
+
   ngOnDestroy(): void {
     if (this.p5 && this.video) {
+      this.poseNet.removeListener("pose", this.gotPoses.bind(this));
       this.p5.remove();
       this.video.remove();
+      this.p5 = null;
+      this.modalRef?.close();
     }
   }
 
@@ -232,7 +242,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
     this.p5.translate(this.video.width, 0);
     this.p5.scale(-1, 1);
     this.p5.image(this.video, 0, 0, this.video.width, this.video.height);
-    if (this.pose) {
+    if (this.pose && this.isDemo) {
       if (this.test++ == 0) {
         console.log(this.pose);
       }
@@ -246,7 +256,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
         this.pose.leftEye,
         this.pose.rightEye,
       ].map((point) => {
-        this.p5.ellipse(point.x, point.y, 15);
+        this.p5.ellipse(point.x, point.y, 5);
       });
       const { leftShoulder, rightShoulder } = this.pose;
       this.p5.line(
@@ -265,7 +275,7 @@ export class CollectingComponent implements OnInit, OnDestroy {
     if (this.postureLabel === "Correct posture") {
       this.createCanvas();
     }
-    const modal = this.dialog.open(ModalComponent, {
+    this.modalRef = this.dialog.open(ModalComponent, {
       hasBackdrop: false,
       data: {
         message:
@@ -274,8 +284,11 @@ export class CollectingComponent implements OnInit, OnDestroy {
             : "We're now gathering data for the Incorrect Posture",
       },
     });
-    modal.afterClosed().subscribe(async () => {
+    this.modalRef.afterClosed().subscribe(() => {
       this.container.style.display = "flex";
+      if (this.isDemo) {
+        return;
+      }
       this.speech.speak({
         text: this.instructionsToUser[this.instructionsToUserArrayIndex],
         listeners: {
