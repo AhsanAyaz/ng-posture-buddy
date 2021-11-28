@@ -246,45 +246,34 @@ export class CollectingComponent implements OnInit, OnDestroy {
       if (this.test++ == 0) {
         console.log(this.pose);
       }
-      this.p5.fill(164, 52, 235);
-      this.p5.stroke(164, 52, 235);
+      // const [r, g, b] = [164, 52, 235];
+      const [r, g, b] = [255, 255, 255];
+      this.p5.fill(r, g, b);
+      this.p5.stroke(r, g, b);
       this.p5.strokeWeight(2);
-      const { leftEar, rightEar, nose, leftEye, rightEye, leftShoulder, rightShoulder, rightWrist, leftWrist, rightElbow, leftElbow } = this.pose;
+      const { leftEar, rightEar, nose, leftEye, rightEye } = this.pose;
 
-      [
-        nose,
-        leftEye,
-        rightEye,
-        leftEar,
-        rightEar
-      ].map((point) => {
+      [nose, leftEye, rightEye, leftEar, rightEar].map((point) => {
         this.p5.ellipse(point.x, point.y, 5);
       });
-      this.p5.line(
-        leftShoulder.x,
-        leftShoulder.y,
-        rightShoulder.x,
-        rightShoulder.y
-      );
-      this.createArmLines(leftShoulder, leftElbow, leftWrist)
-      this.createArmLines(rightShoulder, rightElbow, rightWrist)
+      this.skeleton.forEach((sk) => {
+        const [pa, pb] = sk;
+        this.p5.ellipse(pa.position.x, pa.position.y, 7);
+        this.p5.ellipse(pb.position.x, pb.position.y, 7);
+        this.p5.line(
+          pa.position.x,
+          pa.position.y,
+          pb.position.x,
+          pb.position.y
+        );
+      });
     }
     this.p5.pop();
   }
 
   createArmLines(shoulder, elbow, wrist) {
-    this.p5.line(
-      shoulder.x,
-      shoulder.y,
-      elbow.x,
-      elbow.y
-    );
-    this.p5.line(
-      elbow.x,
-      elbow.y,
-      wrist.x,
-      wrist.y
-    );
+    this.p5.line(shoulder.x, shoulder.y, elbow.x, elbow.y);
+    this.p5.line(elbow.x, elbow.y, wrist.x, wrist.y);
     this.p5.ellipse(shoulder.x, shoulder.y, 5);
     this.p5.ellipse(elbow.x, elbow.y, 5);
     this.p5.ellipse(wrist.x, wrist.y, 5);
